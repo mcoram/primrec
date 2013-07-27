@@ -2,6 +2,8 @@
 ; In this version we see if it's faster if I avoid all those calls to eval and build the functions as I go
 ; Yes, it seems to be distinctly faster.
 ; For the next optim. I'll change C1j so that right associative only (this is to remove from the search alt. ways to assoc.)
+; Warning: this confuses the interpretation of gen3, etc... since the search doesn't proceed as far as it "appears" to.
+; Disable the #:unless lines to revert this.
 
 ; Primitive operations
 (define Z 0)
