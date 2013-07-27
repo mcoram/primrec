@@ -170,8 +170,9 @@
        genht))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(time
- (begin
+
+;(time
+; (begin
    (define genht1 (make-initial-hashes))
    ;(define updaters1 (make-updaters genht1 '(10 10 10 10) '(0 25 5 3)))
    (define updaters1 (make-updaters genht1 '(1000 1000 1000 1000) '(0 25 5 3)))
@@ -186,7 +187,8 @@
    (extendht updaters1 gen2)
    (define gen3 (extractgen genht1))
    (displayln (map length gen3))
-   ))
+;   ))
+; (1 2 2 3)(2 5 7 6)(4 33 103 58)(9 6355 119999 50940)cpu time: 4552916 real time: 4554088 gc time: 28219
 
 ;(when #f 
 ;    (begin 
