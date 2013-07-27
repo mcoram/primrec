@@ -1,5 +1,7 @@
 #lang racket
 ; In this version we see if it's faster if I avoid all those calls to eval and build the functions as I go
+; Yes, it seems to be distinctly faster.
+; For the next optim. I'll change C1j so that right associative only (this is to remove from the search alt. ways to assoc.)
 
 ; Primitive operations
 (define Z 0)
@@ -68,6 +70,12 @@
 (define list-of-compose-fun (list (list C10 C20 C30) (list C11 C21 C31) (list C12 C22 C32) (list C13 C23 C33)))
 
 (define nth list-ref)
+(define (index-of lst ele)
+  (let loop ((lst lst)
+             (idx 0))
+    (cond ((empty? lst) #f)
+          ((equal? (first lst) ele) idx)
+          (else (loop (rest lst) (add1 idx))))))
 
 (define (compose-extend gen arity updater)
   (let* 
@@ -85,10 +93,13 @@
        [gena (nth gen arity)])
     (begin
        (for* ([f1 gen1]
-	      [f2 gena])
-             (updater (list c1 (first f1) (first f2)) 
-		      (c1f (second f1) (second f2))
-		      (+ 1 (third f1) (third f2))))
+              #:unless (and (list? (first f1)) (equal? (first (first f1)) c1)) ; Force C1j constructions to right associate.
+	      [f2 gena]
+              #:unless (and (equal? c1 'C10) (list? (first f2)) (equal? (first (first f2)) c1)) ; Force C10 to be used only once (use a C11 chain as first arg.)
+              )
+         (updater (list c1 (first f1) (first f2)) 
+                    (c1f (second f1) (second f2))
+                    (+ 1 (third f1) (third f2))))
        (for* ([f1 gen2]
 	      [f2 gena]
 	      [f3 gena])
@@ -171,37 +182,59 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;(time
-; (begin
-   (define genht1 (make-initial-hashes))
-   ;(define updaters1 (make-updaters genht1 '(10 10 10 10) '(0 25 5 3)))
-   (define updaters1 (make-updaters genht1 '(1000 1000 1000 1000) '(0 25 5 3)))
+; globals (to escape the body of time; yuck)
+(define genht1 null)
+(define updaters1 null)
+(define gen1 null)
+(define gen2 null)
+(define gen3 null)
+(define updaters2 null)
+(define gen3_2 null)
+(define gen3_3 null)
+(time
+ (begin
+   (set! genht1 (make-initial-hashes))
+   ;(set! updaters1 (make-updaters genht1 '(10 10 10 10) '(0 25 5 3)))
+   (set! updaters1 (make-updaters genht1 '(1000 1000 1000 1000) '(0 25 5 3)))
    (install-gen updaters1 gen0)
    (displayln (map length gen0))
    (extendht updaters1 gen0)
-   (define gen1 (extractgen genht1))
+   (set! gen1 (extractgen genht1))
    (displayln (map length gen1))
    (extendht updaters1 gen1)
-   (define gen2 (extractgen genht1))
+   (set! gen2 (extractgen genht1))
    (displayln (map length gen2))
-   (extendht updaters1 gen2)
-   (define gen3 (extractgen genht1))
-   (displayln (map length gen3))
-;   ))
-; (1 2 2 3)(2 5 7 6)(4 33 103 58)(9 6355 119999 50940)cpu time: 4552916 real time: 4554088 gc time: 28219
+   ;(extendht updaters1 gen2)
+   ;(set! gen3 (extractgen genht1))
+   ;(displayln (map length gen3))
+   (set! gen3 gen2) ; hack
+
+   (set! updaters2 (make-updaters genht1 '(100 10 10 10) '(0 25 5 3)))
+   (extendht1 updaters2 gen3)
+   (set! gen3_2 (extractgen genht1))
+   (map length gen3_2);
+   ; (7 . ((C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0)) 14))
+   ; (C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0))
+
+   (extendht1 updaters2 gen3_2)
+   (set! gen3_3 (extractgen genht1))
+   (map length gen3_3)
+
+   ))
+; (1 2 2 3)(2 5 7 6)(4 33 103 58)(9 6355 119999 50940)cpu time: 4552916 real time: 4554088 gc time: 28219 ; gen3
 
 ;(when #f 
 ;    (begin 
-;      (define updaters2 (make-updaters genht1 '(100 10 10 10) '(0 25 5 3)))
-;      (extendht1 updaters2 gen3)
-;      (define gen3_2 (extractgen genht1))
-;      (map length gen3_2);
-					; (7 . ((C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0)) 14))
-					; (C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0))
-
-;      (extendht1 updaters2 gen3_2)
-;      (define gen3_3 (extractgen genht1))
-;      (map length gen3_3)
 ;      (first genht1)
 ;      ))
 
+;(apply max (map (lambda (x) (apply max x)) (hash-keys (second genht1))))
+;(filter (lambda (x) (equal? (apply max (first x)) 327)) (sort (hash->list (second genht1)) (lambda (x y) (< (fourth x) (fourth y)))) )
+(sort (hash->list (first genht1)) (lambda (x y) (< (fourth x) (fourth y))))
+;(take (sort (hash->list (second genht1)) (lambda (x y) (< (fourth x) (fourth y)))) 500)
+
+;need to remove the functions first
+;(require racket/serialize)
+;(define ofile (open-output-file "genht3.rkts" #:exists 'replace))
+;(write (serialize gen3) ofile)
+;(close-output-port ofile)

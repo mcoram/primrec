@@ -211,8 +211,11 @@
     (compose-extend gen 0 (nth updaters 0))
     ))
 
-(define genht1 (make-initial-hashes))
-(define updaters1 (make-updaters genht1 '(10 10 10 10) '(0 25 5 3)))
+(define genht1 null)
+(time (begin ;;;;;;;;;;;;;;;;
+(set! genht1 (make-initial-hashes))
+;(define updaters1 (make-updaters genht1 '(10 10 10 10) '(0 25 5 3)))
+(define updaters1 (make-updaters genht1 '(1000 1000 1000 1000) '(0 25 5 3)))
 (install-gen updaters1 gen0)
 (map length gen0)
 (extendht updaters1 gen0)
@@ -222,18 +225,18 @@
 (define gen2 (extractgen genht1))
 (map length gen2)
 (extendht updaters1 gen2)
-(define gen3 (extractgen genht1))
-(map length gen3)
+;(define gen3 (extractgen genht1))
+;(map length gen3)
 
-(define updaters2 (make-updaters genht1 '(100 10 10 10) '(0 25 5 3)))
-(extendht1 updaters2 gen3)
-(define gen3_2 (extractgen genht1))
-(map length gen3_2)
+;(define updaters2 (make-updaters genht1 '(100 10 10 10) '(0 25 5 3)))
+;(extendht1 updaters2 gen3)
+;(define gen3_2 (extractgen genht1))
+;(map length gen3_2)
 ; (7 . ((C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0)) 14))
 ; (C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0))
 
-(extendht1 updaters2 gen3_2)
-(define gen3_3 (extractgen genht1))
-(map length gen3_3)
+;(extendht1 updaters2 gen3_2)
+;(define gen3_3 (extractgen genht1))
+;(map length gen3_3)
 (first genht1)
-
+)) ;;;;;;;;;;;;;;;;;;;;;;;;
