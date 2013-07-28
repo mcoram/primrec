@@ -177,5 +177,8 @@
    (vector-ref v-lv arity) 
    (make-extender arity updater initial induce)))
 
-(lazy-vector-ref (vector-ref v-lv 0) 15)
+(time (lazy-vector-ref (vector-ref v-lv 0) 9))
+(time (lazy-vector-ref (vector-ref v-lv 0) 11)) ; DrScheme crashes at this point but racket didn't
+(time (lazy-vector-ref (vector-ref v-lv 0) 15)) ; racket crashes here with "Racket virtual machine has run out of memory; aborting"
 
+(vector-map (lambda (x) (lazy-vector->vector x)) v-lv)
