@@ -61,32 +61,104 @@
 ; Now let's install the extenders for the lazy-lists in v-lv. the idea is that the 4 lv's correspond to arities 0..3 and that entry ix of the vector is the list of observably distinct functions
 ; of the right arity that have complexity weight ix exactly (the 0 entries are null). The extenders will "mutually-recurse" with each other through references to the lazy list entries.
 
-;install arity 0 extender
-(set-lazy-vector-extender!
- (vector-ref v-lv 0) 
- (lambda (lvself ix)
-   (let* ([arity 0]
-         [myupdater (vector-ref v-updaters arity)])
-     (cond 
-       [(< ix 1) null]
-       [(equal? ix 1)
-        (let ([results (list (list 0 0 1) )])
-          (begin
-            (for ([x results]) (apply myupdater x))
-            results
-            ))] ; 0 is the only function of arity 0 initially; functions are presented as (list 'F F 1) for the symbolic version, the function, the "cost"
-       [else
-        (begin
-          (vector-set! v-accum arity null) ; clear the accumulator
-          ;... use updaters
-          (vector-ref v-accum arity) ; the accumulator is our result
-          )]))))
-
-(lazy-vector-ref (vector-ref v-lv 0) 1)
-
-(define gen0 ; a list of functions of each arity from 0..3; functions are presented as (list 'F F 1) for the symbolic version, the function, the "cost"
-  (list
+(define pr-initial ; a list of functions of each arity from 0..3; functions are presented as (list 'F F 1) for the symbolic version, the function, the "cost"
+  (vector
    (list (list 0 0 1) ) ; 0 is the only function of arity 0 initially
    (list (list 'S S 1) (list 'P11 P11 1)) ; S and P11 are arity 1
    (list (list 'P21 P21 1) (list 'P22 P22 1)) ; P21 and P22 are arity 2
    (list (list 'P31 P31 1) (list 'P32 P32 1) (list 'P33 P33 1))))
+
+
+(define list-of-compose '((C10 C20 C30) (C11 C21 C31) (C12 C22 C32) (C13 C23 C33)))
+(define list-of-compose-fun (list (list C10 C20 C30) (list C11 C21 C31) (list C12 C22 C32) (list C13 C23 C33)))
+
+(define (compose-extend depth arity updater)
+  (let* 
+      ([clist (nth list-of-compose arity)]
+       [c1 (nth clist 0)]
+       [c2 (nth clist 1)] 
+       [c3 (nth clist 2)]
+       [clistf (nth list-of-compose-fun arity)]
+       [c1f (nth clistf 0)]
+       [c2f (nth clistf 1)] 
+       [c3f (nth clistf 2)]
+       [lv (vector-ref v-lv arity)]
+       [lv1 (vector-ref v-lv 1)]
+       [lv2 (vector-ref v-lv 2)]
+       [lv3 (vector-ref v-lv 3)])
+    (begin 
+      (for ([weights (lazy-ksumj-4 2 (- depth 1))]) ; C1j
+        ;(displayln (list 'weights weights))
+        (for* ([f1 (lazy-vector-ref lv1 (first weights))]
+               #:unless (and (list? (first f1)) (equal? (first (first f1)) c1)) ; Force C1j constructions to right associate.
+               [f2 (lazy-vector-ref lv (second weights))]
+               #:unless (and (equal? c1 'C10) (list? (first f2)) (equal? (first (first f2)) c1)) ; Force C10 to be used only once (use a C11 chain as first arg.)
+               )
+          (updater (list c1 (first f1) (first f2)) 
+                   (c1f (second f1) (second f2))
+                   (+ 1 (third f1) (third f2)))))
+      (for ([weights (lazy-ksumj-4 3 (- depth 1))]) ; C2j
+        (for* ([f1 (lazy-vector-ref lv2 (first weights))]
+               [f2 (lazy-vector-ref lv (second weights))]
+               [f3 (lazy-vector-ref lv (third weights))]
+               )
+          (updater (list c2 (first f1) (first f2) (first f3)) 
+                   (c2f (second f1) (second f2) (second f3))
+                   (+ 1 (third f1) (third f2) (third f3)))))
+      (for ([weights (lazy-ksumj-4 4 (- depth 1))]) ; C3j
+        (for* ([f1 (lazy-vector-ref lv3 (first weights))]
+               [f2 (lazy-vector-ref lv (second weights))]
+               [f3 (lazy-vector-ref lv (third weights))]
+               [f4 (lazy-vector-ref lv (fourth weights))]
+               )
+          (updater (list c3 (first f1) (first f2) (first f3) (first f4)) 
+                   (c3f (second f1) (second f2) (second f3) (second f4))
+                   (+ 1 (third f1) (third f2) (third f3) (third f4))))))))
+
+(define v-induce 
+  (vector
+   (lambda (depth arity updater)
+     (begin
+       (compose-extend depth arity updater)
+       ))
+   (lambda (depth arity updater)
+     (begin
+       (compose-extend depth arity updater)
+       ))
+   (lambda (depth arity updater)
+     (begin
+       (compose-extend depth arity updater)
+       ))
+   (lambda (depth arity updater)
+     (begin
+       (compose-extend depth arity updater)
+       ))))
+
+(define (make-extender arity updater initial induce)
+  (lambda (lvself ix)
+    (displayln (list 'make-extender arity ix))
+    (cond 
+      [(< ix 1) null]
+      [(equal? ix 1)
+       (begin
+            (for ([x initial]) (apply updater x))
+            initial
+            )] 
+      [else
+       (begin
+         (vector-set! v-accum arity null) ; clear the accumulator
+         (induce ix arity updater) ;... use updater
+         (vector-ref v-accum arity) ; the accumulator is our result
+         )])))
+
+;install extenders
+(for ([arity (in-range 4)]
+      [updater v-updaters]
+      [initial pr-initial]
+      [induce v-induce])
+  (set-lazy-vector-extender!
+   (vector-ref v-lv arity) 
+   (make-extender arity updater initial induce)))
+
+(lazy-vector-ref (vector-ref v-lv 0) 15)
+
