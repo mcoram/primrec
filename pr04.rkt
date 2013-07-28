@@ -83,6 +83,7 @@
        [c2f (nth clistf 1)] 
        [c3f (nth clistf 2)]
        [lv (vector-ref v-lv arity)]
+       [lv0 (vector-ref v-lv 0)]
        [lv1 (vector-ref v-lv 1)]
        [lv2 (vector-ref v-lv 2)]
        [lv3 (vector-ref v-lv 3)])
@@ -113,7 +114,23 @@
                )
           (updater (list c3 (first f1) (first f2) (first f3) (first f4)) 
                    (c3f (second f1) (second f2) (second f3) (second f4))
-                   (+ 1 (third f1) (third f2) (third f3) (third f4))))))))
+                   (+ 1 (third f1) (third f2) (third f3) (third f4)))))
+      (cond [(equal? arity 1)
+             (for ([weights (lazy-ksumj-4 2 (- depth 1))]) ; R0
+               (for* ([f1 (lazy-vector-ref lv2 (first weights))]
+                      [f2 (lazy-vector-ref lv0 (second weights))]
+                      )             
+                 (updater (list 'R0 (first f1) (first f2))
+                                   (R0 (second f1) (second f2))
+                                   (+ 1 (third f1) (third f2)))))]
+            [(equal? arity 2)
+             (for ([weights (lazy-ksumj-4 2 (- depth 1))]) ; R1
+               (for* ([f1 (lazy-vector-ref lv3 (first weights))]
+                      [f2 (lazy-vector-ref lv1 (second weights))]
+                      )             
+                 (updater (list 'R1 (first f1) (first f2))
+                          (R1 (second f1) (second f2))
+                          (+ 1 (third f1) (third f2)))))]))))
 
 (define v-induce 
   (vector
