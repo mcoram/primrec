@@ -21,8 +21,9 @@
             (vector-copy! newv 0 (lazy-vector-v v) 0 (+ 1 (lazy-vector-lastix v)))
             (set-lazy-vector-v! v newv))))
       (for ([ix (in-range (+ 1 (lazy-vector-lastix v)) (+ 1 extent))]) ; build out the new values
-        (vector-set! (lazy-vector-v v) ix ((lazy-vector-extender v) v ix)))
-      (set-lazy-vector-lastix! v extent)))) ; store new extent
+        (begin
+          (vector-set! (lazy-vector-v v) ix ((lazy-vector-extender v) v ix))
+          (set-lazy-vector-lastix! v ix)))))) ; store new extent at each step
 
 (define (lv-test-1)
   (begin
