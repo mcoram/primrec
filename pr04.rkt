@@ -37,11 +37,18 @@
              [depth1 depths]
              [run1 run-depths])
     (make-updater ht1
-                  (lambda (s f l) #t) ; ok?
+                  (lambda (s f l)  ; ok?
+                    (begin
+                      (set! update-count (+ 1 update-count)) ; !side-effect on update-count!
+                      (when (equal? (modulo update-count 1000) 0) (displayln (list 'update-count update-count)))
+                      #t))
                   (lambda (s f l) (run1 f depth1)) ; to-key
                   (lambda (s f l) (list s f l)) ; to-value
                   (lambda (val oval) #f) ; prefer?
-                  (lambda (key val) (vector-set! v-accum ix (cons val (vector-ref v-accum ix)))) ; on-new -- !side-effect on the accumulator!
+                  (lambda (key val) ; on-new -- !side-effect on the accumulator!
+                    (begin
+                      (displayln (list 'on-new key val))
+                      (vector-set! v-accum ix (cons val (vector-ref v-accum ix)))))
                   (lambda (key val oval) void) ; on-prefer
                   )))
 
@@ -55,6 +62,7 @@
 (define v-lv (initialize-vector 4 (lambda (ix) (make-lazy-vector null))))
 
 (define v-updaters (list->vector (make-updaters v-ht v-accum '(0 25 5 3)))) ; these will be used to update v-ht primarily but will side effect on v-accum
+(define update-count 0)
 
 ; Helpers to display the contents of the state
 (define (function-counts) (vector-map (lambda (x) (length (hash-keys x))) v-ht))
@@ -173,14 +181,20 @@
 (time (lazy-vector-ref (vector-ref v-lv 0) 14)) ; Sufficient to get "7" with (C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0))
 ;(time (lazy-vector-ref (vector-ref v-lv 0) 15)) ; racket crashes here with "Racket virtual machine has run out of memory; aborting"; 64bit doesn't crash but consumes +50gig swap
 
+; Aha! Part of the slow-down is that some of these functions are getting complicated; here's two in 1 9:
+; c.f. Eulerian numbers: http://oeis.org/A000295
+;(on-new (0 0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191) ((R0 (R1 (C13 S (C13 S P31)) P11) 0) #<procedure:phi> 9))
+;(on-new (0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) ((R0 (R1 (C13 S (C13 S P31)) S) 0) #<procedure:phi> 9))
+; DrRacket segfaults in 1 11 with 8192 memory.
 
 ;(vector-map (lambda (x) (lazy-vector->vector x)) v-lv)
 (dump-functions)
 
+(define outname "out/functions14")
 (require racket/serialize)
-(define ofile (open-output-file "out/functions14.serial" #:exists 'replace))
+(define ofile (open-output-file (string-append outname ".serial") #:exists 'replace))
 (write (serialize (dump-functions)) ofile)
 (close-output-port ofile)
-(define ofile2 (open-output-file "out/functions14.txt" #:exists 'replace))
+(define ofile2 (open-output-file (string-append outname ".txt") #:exists 'replace))
 (write (dump-functions) ofile2)
 (close-output-port ofile2)
