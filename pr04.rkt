@@ -1,4 +1,6 @@
 #lang racket
+; Warning: At decent depths (>9) this consumes gigs of memory and requires the 64bit version of Racket.
+
 (require "pr_primitives.rkt")
 (require "lazy-vector.rkt")
 (require "ksumj.rkt")
@@ -54,6 +56,10 @@
 
 (define v-updaters (list->vector (make-updaters v-ht v-accum '(0 25 5 3)))) ; these will be used to update v-ht primarily but will side effect on v-accum
 
+; Helpers to display the contents of the state
+(define (function-counts) (vector-map (lambda (x) (length (hash-keys x))) v-ht))
+(define (dump-functions) (vector-map (lambda (ht) (map (lambda (x) (list (first x) (fourth x) (second x))) (sort (hash->list ht) (lambda (x y) (< (fourth x) (fourth y)))))) v-ht))
+
 ; Test the updaters below; the updater's argument is of the form (symbolic-rep, function-rep, weight):
 ;((vector-ref v-updaters 1) '(C21 (R1 (C13 S P31) S) S S) (C21 (R1 (C13 S P31) S) S S) 8) ; this is a terse version of i -> 2*i+3
 ; and confirm that v-accum and v-ht are updated appropriately. check.
@@ -72,7 +78,7 @@
 (define list-of-compose '((C10 C20 C30) (C11 C21 C31) (C12 C22 C32) (C13 C23 C33)))
 (define list-of-compose-fun (list (list C10 C20 C30) (list C11 C21 C31) (list C12 C22 C32) (list C13 C23 C33)))
 
-(define (compose-extend depth arity updater)
+(define (pr-induce depth arity updater)
   (let* 
       ([clist (nth list-of-compose arity)]
        [c1 (nth clist 0)]
@@ -88,7 +94,7 @@
        [lv2 (vector-ref v-lv 2)]
        [lv3 (vector-ref v-lv 3)])
     (begin 
-      (for ([weights (lazy-ksumj-4 2 (- depth 1))]) ; C1j
+      (for ([weights (ksumj 2 (- depth 1))]) ; C1j
         ;(displayln (list 'weights weights))
         (for* ([f1 (lazy-vector-ref lv1 (first weights))]
                #:unless (and (list? (first f1)) (equal? (first (first f1)) c1)) ; Force C1j constructions to right associate.
@@ -98,7 +104,7 @@
           (updater (list c1 (first f1) (first f2)) 
                    (c1f (second f1) (second f2))
                    (+ 1 (third f1) (third f2)))))
-      (for ([weights (lazy-ksumj-4 3 (- depth 1))]) ; C2j
+      (for ([weights (ksumj 3 (- depth 1))]) ; C2j
         (for* ([f1 (lazy-vector-ref lv2 (first weights))]
                [f2 (lazy-vector-ref lv (second weights))]
                [f3 (lazy-vector-ref lv (third weights))]
@@ -106,7 +112,7 @@
           (updater (list c2 (first f1) (first f2) (first f3)) 
                    (c2f (second f1) (second f2) (second f3))
                    (+ 1 (third f1) (third f2) (third f3)))))
-      (for ([weights (lazy-ksumj-4 4 (- depth 1))]) ; C3j
+      (for ([weights (ksumj 4 (- depth 1))]) ; C3j
         (for* ([f1 (lazy-vector-ref lv3 (first weights))]
                [f2 (lazy-vector-ref lv (second weights))]
                [f3 (lazy-vector-ref lv (third weights))]
@@ -116,7 +122,7 @@
                    (c3f (second f1) (second f2) (second f3) (second f4))
                    (+ 1 (third f1) (third f2) (third f3) (third f4)))))
       (cond [(equal? arity 1)
-             (for ([weights (lazy-ksumj-4 2 (- depth 1))]) ; R0
+             (for ([weights (ksumj 2 (- depth 1))]) ; R0
                (for* ([f1 (lazy-vector-ref lv2 (first weights))]
                       [f2 (lazy-vector-ref lv0 (second weights))]
                       )             
@@ -124,7 +130,7 @@
                                    (R0 (second f1) (second f2))
                                    (+ 1 (third f1) (third f2)))))]
             [(equal? arity 2)
-             (for ([weights (lazy-ksumj-4 2 (- depth 1))]) ; R1
+             (for ([weights (ksumj 2 (- depth 1))]) ; R1
                (for* ([f1 (lazy-vector-ref lv3 (first weights))]
                       [f2 (lazy-vector-ref lv1 (second weights))]
                       )             
@@ -132,53 +138,49 @@
                           (R1 (second f1) (second f2))
                           (+ 1 (third f1) (third f2)))))]))))
 
-(define v-induce 
-  (vector
-   (lambda (depth arity updater)
-     (begin
-       (compose-extend depth arity updater)
-       ))
-   (lambda (depth arity updater)
-     (begin
-       (compose-extend depth arity updater)
-       ))
-   (lambda (depth arity updater)
-     (begin
-       (compose-extend depth arity updater)
-       ))
-   (lambda (depth arity updater)
-     (begin
-       (compose-extend depth arity updater)
-       ))))
 
 (define (make-extender arity updater initial induce)
   (lambda (lvself ix)
-    (displayln (list 'make-extender arity ix))
-    (cond 
-      [(< ix 1) null]
-      [(equal? ix 1)
-       (begin
-            (for ([x initial]) (apply updater x))
-            initial
-            )] 
-      [else
-       (begin
-         (vector-set! v-accum arity null) ; clear the accumulator
-         (induce ix arity updater) ;... use updater
-         (vector-ref v-accum arity) ; the accumulator is our result
-         )])))
+    (displayln (list 'begin-extender arity ix 'counts (function-counts)))
+    (let ([result(cond 
+                   [(< ix 1) null]
+                   [(equal? ix 1)
+                    (begin
+                      (for ([x initial]) (apply updater x))
+                      initial
+                      )] 
+                   [else
+                    (begin
+                      (vector-set! v-accum arity null) ; clear the accumulator
+                      (induce ix arity updater) ;... use updater
+                      (vector-ref v-accum arity) ; the accumulator is our result
+                      )])])
+      (displayln (list 'end---extender arity ix 'counts (function-counts)))
+      result
+      )))
 
 ;install extenders
 (for ([arity (in-range 4)]
       [updater v-updaters]
-      [initial pr-initial]
-      [induce v-induce])
+      [initial pr-initial])
   (set-lazy-vector-extender!
    (vector-ref v-lv arity) 
-   (make-extender arity updater initial induce)))
+   (make-extender arity updater initial pr-induce)))
 
-(time (lazy-vector-ref (vector-ref v-lv 0) 9))
-(time (lazy-vector-ref (vector-ref v-lv 0) 11)) ; DrScheme crashes at this point but racket didn't
-(time (lazy-vector-ref (vector-ref v-lv 0) 15)) ; racket crashes here with "Racket virtual machine has run out of memory; aborting"
+;(time (lazy-vector-ref (vector-ref v-lv 0) 9))
+;(time (lazy-vector-ref (vector-ref v-lv 0) 11)) ; DrScheme 32bit crashes at this point but racket32bit didn't
+;(time (lazy-vector-ref (vector-ref v-lv 0) 12)) ; DrScheme 64bit made it here
+(time (lazy-vector-ref (vector-ref v-lv 0) 14)) ; Sufficient to get "7" with (C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0))
+;(time (lazy-vector-ref (vector-ref v-lv 0) 15)) ; racket crashes here with "Racket virtual machine has run out of memory; aborting"; 64bit doesn't crash but consumes +50gig swap
 
-(vector-map (lambda (x) (lazy-vector->vector x)) v-lv)
+
+;(vector-map (lambda (x) (lazy-vector->vector x)) v-lv)
+(dump-functions)
+
+(require racket/serialize)
+(define ofile (open-output-file "out/functions14.serial" #:exists 'replace))
+(write (serialize (dump-functions)) ofile)
+(close-output-port ofile)
+(define ofile2 (open-output-file "out/functions14.txt" #:exists 'replace))
+(write (dump-functions) ofile2)
+(close-output-port ofile2)
