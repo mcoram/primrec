@@ -84,3 +84,9 @@
 ;cpu time: 4629 real time: 4627 gc time: 0
 ;> (time (for/list ([x (in-range 25)]) ((R0-rec (R1-rec (C13 S (C13 S P31)) P11) 0) x)))
 ;cpu time: 154281 real time: 161707 gc time: 77077
+
+;Yay. The new R0 and R1 help. New challenge:
+;(running (R0 (R1 (C13 S (C13 S (C13 S P31))) P11) 0) 11)
+;(time (for/list ([x (in-range 18)]) ((R0 (R1 (C13 S (C13 S (C13 S P31))) P11) 0) x)))
+;cpu time: 8660 real time: 8668 gc time: 26
+;'(0 0 1 5 18 58 179 543 1636 4916 14757 44281 132854 398574 1195735 3587219 10761672 32285032)

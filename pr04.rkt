@@ -12,6 +12,15 @@
                            (lambda (f depth1) (for*/list ([i (in-range depth1)]) (f i)))
                            (lambda (f depth1) (for*/list ([i (in-range depth1)] [j (in-range depth1)]) (f i j)))
                            (lambda (f depth1) (for*/list ([i (in-range depth1)] [j (in-range depth1)] [k (in-range depth1)]) (f i j k)))))
+(define run-depths-time
+  (vector-map (lambda (run1)
+                (lambda (s f l depth)
+                  (displayln (list 'running s l))
+                  (let-values ([(result t1 t2 t3) (time-apply run1 (list f depth))])
+                    (begin
+                      (when (> t1 1)
+                        (displayln (list 'slow-run result s l 'times t1 t2 t3)))
+                      result)))) run-depths))
 
 ; a moderately generic function to construct hashtable updaters with "programmable behavior"
 (define (make-updater ht ok? to-key to-value prefer? on-new on-prefer) 
@@ -35,14 +44,14 @@
   (for/list ([ix (in-range 4)]
              [ht1 v-ht]
              [depth1 depths]
-             [run1 run-depths])
+             [run1 run-depths-time])
     (make-updater ht1
                   (lambda (s f l)  ; ok?
                     (begin
                       (set! update-count (+ 1 update-count)) ; !side-effect on update-count!
                       (when (equal? (modulo update-count 1000) 0) (displayln (list 'update-count update-count)))
                       #t))
-                  (lambda (s f l) (run1 f depth1)) ; to-key
+                  (lambda (s f l) (run1 s f l depth1)) ; to-key
                   (lambda (s f l) (list s f l)) ; to-value
                   (lambda (val oval) #f) ; prefer?
                   (lambda (key val) ; on-new -- !side-effect on the accumulator!
@@ -186,6 +195,9 @@
 ;(on-new (0 0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191) ((R0 (R1 (C13 S (C13 S P31)) P11) 0) #<procedure:phi> 9))
 ;(on-new (0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) ((R0 (R1 (C13 S (C13 S P31)) S) 0) #<procedure:phi> 9))
 ; DrRacket segfaults in 1 11 with 8192 memory.
+
+;Yay. The new R0 and R1 help. New challenge:
+;(running (R0 (R1 (C13 S (C13 S (C13 S P31))) P11) 0) 11)
 
 ;(vector-map (lambda (x) (lazy-vector->vector x)) v-lv)
 (dump-functions)
