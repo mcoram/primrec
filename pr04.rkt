@@ -1,5 +1,4 @@
 #lang racket
-; Warning: At decent depths (>9) this consumes gigs of memory and requires the 64bit version of Racket.
 
 (require "pr_primitives.rkt")
 (require "lazy-vector.rkt")
@@ -70,12 +69,14 @@
 ;make 4 lazy-vectors to store observably distinct functions of each level of complexity; their extenders are set to null b/c they'll be filled in later
 (define v-lv (initialize-vector 4 (lambda (ix) (make-lazy-vector null))))
 
-(define v-updaters (list->vector (make-updaters v-ht v-accum '(0 25 5 3)))) ; these will be used to update v-ht primarily but will side effect on v-accum
+;(define evaluation-limits '(0 25 5 3)) ; These get a bit slow at depth 11 or so
+(define evaluation-limits '(0 4 4 3)) ; weak limits get it done
+(define v-updaters (list->vector (make-updaters v-ht v-accum evaluation-limits))) ; these will be used to update v-ht primarily but will side effect on v-accum
 (define update-count 0)
 
 ; Helpers to display the contents of the state
 (define (function-counts) (vector-map (lambda (x) (length (hash-keys x))) v-ht))
-(define (dump-functions) (vector-map (lambda (ht) (map (lambda (x) (list (first x) (fourth x) (second x))) (sort (hash->list ht) (lambda (x y) (< (fourth x) (fourth y)))))) v-ht))
+(define (dump-functions) (vector-map (lambda (ht) (map (lambda (x) (list (first (first x)) (fourth x) (second x))) (sort (hash->list ht) (lambda (x y) (< (fourth x) (fourth y)))))) v-ht))
 
 ; Test the updaters below; the updater's argument is of the form (symbolic-rep, function-rep, weight):
 ;((vector-ref v-updaters 1) '(C21 (R1 (C13 S P31) S) S S) (C21 (R1 (C13 S P31) S) S S) 8) ; this is a terse version of i -> 2*i+3
@@ -185,19 +186,20 @@
    (make-extender arity updater initial pr-induce)))
 
 ;(time (lazy-vector-ref (vector-ref v-lv 0) 9))
-;(time (lazy-vector-ref (vector-ref v-lv 0) 11)) ; DrScheme 32bit crashes at this point but racket32bit didn't
-;(time (lazy-vector-ref (vector-ref v-lv 0) 12)) ; DrScheme 64bit made it here
-(time (lazy-vector-ref (vector-ref v-lv 0) 14)) ; Sufficient to get "7" with (C10 (C21 (R1 (C13 S P31) S) S S) (C10 (C11 S S) 0))
-;(time (lazy-vector-ref (vector-ref v-lv 0) 15)) ; racket crashes here with "Racket virtual machine has run out of memory; aborting"; 64bit doesn't crash but consumes +50gig swap
+(time (lazy-vector-ref (vector-ref v-lv 0) 14)) ; Sufficient to get "7" with (7 14 (C10 (C11 (C21 (R1 (C13 S (C13 S P31)) S) S S) S) 0)))
+;(time (lazy-vector-ref (vector-ref v-lv 0) 15))
 
 ; Aha! Part of the slow-down is that some of these functions are getting complicated; here's two in 1 9:
 ; c.f. Eulerian numbers: http://oeis.org/A000295
 ;(on-new (0 0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191) ((R0 (R1 (C13 S (C13 S P31)) P11) 0) #<procedure:phi> 9))
 ;(on-new (0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) ((R0 (R1 (C13 S (C13 S P31)) S) 0) #<procedure:phi> 9))
 ; DrRacket segfaults in 1 11 with 8192 memory.
-
-;Yay. The new R0 and R1 help. New challenge:
+;Yay. The new R0 and R1 help. New challenges:
 ;(running (R0 (R1 (C13 S (C13 S (C13 S P31))) P11) 0) 11)
+;(running (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) P11) 0) 12)
+;(running (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0) 12)
+
+;(running (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) 11)
 
 ;(vector-map (lambda (x) (lazy-vector->vector x)) v-lv)
 (dump-functions)
