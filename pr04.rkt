@@ -4,38 +4,89 @@
 (require "lazy-vector.rkt")
 (require "ksumj.rkt")
 (require "util.rkt")
+(require "run_with_timeout.rkt")
 
+; Limits
+(define timeout-per-eval 5) ; only allow this many seconds for an evaluation
+(define evaluation-limits '(0 25 5 3)) ; These get a bit slow at depth 11 or so
+;(define evaluation-limits '(0 4 4 3)) ; weak limits get it done
 
-;evaluators of the primrecs of arity 0..3 on arguments from the set (0..(depth1-1))^arity
-(define run-depths (vector (lambda (x depth1) x)
-                           (lambda (f depth1) (for*/list ([i (in-range depth1)]) (f i)))
-                           (lambda (f depth1) (for*/list ([i (in-range depth1)] [j (in-range depth1)]) (f i j)))
-                           (lambda (f depth1) (for*/list ([i (in-range depth1)] [j (in-range depth1)] [k (in-range depth1)]) (f i j k)))))
-(define run-depths-time
-  (vector-map (lambda (run1)
-                (lambda (s f l depth)
-                  (displayln (list 'running s l))
-                  (let-values ([(result t1 t2 t3) (time-apply run1 (list f depth))])
-                    (begin
-                      (when (> t1 1)
-                        (displayln (list 'slow-run result s l 'times t1 t2 t3)))
-                      result)))) run-depths))
+;Module-level state ;;;;;;;;;;;;;;;;;;
+
+;make 4 list accumulators for functions of arities 0..3 in the current accumulation (i.e. one step of the lazy-vector extension)
+(define v-accum (initialize-vector 4 (lambda (ix) null)))
+;make 4 hashtables to store observably distinct functions of arities 0..3
+(define v-ht (initialize-vector 4 (lambda (ix) (make-hash))))
+;make 4 lazy-vectors to store observably distinct functions of each level of complexity; their extenders are set to null b/c they'll be filled in later
+(define v-lv (initialize-vector 4 (lambda (ix) (make-lazy-vector null))))
+;store slow functions for followup processing
+(define l-slow null)
+;keep track of update calls
+(define update-count 0)
+
+;build evaluators of the primrecs of arity 0..3 on arguments from the set (0..(depth1-1))^arity
+(define-syntax-rule (make-evaluator result s f l depth result-size evaluation-body timeout)
+  (lambda (s f l depth)
+    (define rs result-size)
+    (define result (make-vector rs))
+    (define result-time -1)
+    (define mythunk (lambda ()
+                      (let ([run1 (lambda () evaluation-body)]) ; evaluation-body called for side-effect on result
+                        (let-values ([(dummyres t1 t2 t3) (time-apply run1 null)])
+                          (set! result-time t1)))))
+    (for ([ix (in-range rs)]) (vector-set! result ix -1)) ; intialize result to impossible values
+    ;(displayln (list 'running s l))
+    (let ([completed (run-with-timeout mythunk timeout)])
+      (when (not completed)
+        (begin
+          (displayln (list 'evaluation-timeout s l result))
+          (set! l-slow (cons (list s f l result) l-slow)) ; !side-effect on l-slow! to store slow functions
+          ))
+      (values result result-time completed))))
+
+(define v-evaluators
+  (vector 
+   (make-evaluator result s f l depth 1
+                   (vector-set! result 0 f)
+                   timeout-per-eval)
+   (make-evaluator result s f l depth depth
+                   (for* ([i (in-range depth)])
+                     (vector-set! result i (f i)))
+                   timeout-per-eval)
+   (make-evaluator result s f l depth (* depth depth)
+                   (let ([counter 0])
+                     (for* ([i (in-range depth)]
+                            [j (in-range depth)])
+                       (vector-set! result counter (f i j))
+                       (set! counter (+ 1 counter))))
+                   timeout-per-eval)
+   (make-evaluator result s f l depth (* depth depth depth)
+                   (let ([counter 0])
+                     (for* ([i (in-range depth)]
+                            [j (in-range depth)]
+                            [k (in-range depth)])
+                       (vector-set! result counter (f i j k))
+                       (set! counter (+ 1 counter))))
+                   timeout-per-eval)))
+
+; @@ I notice that evaluation for constants actually happens before the call to the evaluator in the induce step if arity=0; needs fix? would work in the macro version. hmm.
 
 ; a moderately generic function to construct hashtable updaters with "programmable behavior"
 (define (make-updater ht ok? to-key to-value prefer? on-new on-prefer) 
   (let* 
       ([updater (lambda (x y z)
-                    (when (ok? x y z)
-                        (let* ([key (to-key x y z)]
-                               [val (to-value x y z)]
-                               [oval (hash-ref ht key null)])
-                          (if (null? oval)
-                              (begin (hash-set! ht key val)
-                                     (on-new key val))
-                              (when (prefer? val oval)
-                                (begin
-                                  (hash-set! ht key val)
-                                  (on-prefer key val oval)))))))])
+                  (when (ok? x y z)
+                    (let* ([key (to-key x y z)]
+                           [val (to-value x y z)]
+                           [oval (hash-ref ht key null)])
+                      (when (not (equal? key #f))
+                        (if (null? oval)
+                            (begin (hash-set! ht key val)
+                                   (on-new key val))
+                            (when (prefer? val oval)
+                              (begin
+                                (hash-set! ht key val)
+                                (on-prefer key val oval))))))))])
     updater))
 
 ; builds 4 updaters to handle the four entries in v-ht below
@@ -43,14 +94,14 @@
   (for/list ([ix (in-range 4)]
              [ht1 v-ht]
              [depth1 depths]
-             [run1 run-depths-time])
+             [run1 v-evaluators])
     (make-updater ht1
                   (lambda (s f l)  ; ok?
                     (begin
                       (set! update-count (+ 1 update-count)) ; !side-effect on update-count!
                       (when (equal? (modulo update-count 1000) 0) (displayln (list 'update-count update-count)))
                       #t))
-                  (lambda (s f l) (run1 s f l depth1)) ; to-key
+                  (lambda (s f l) (let-values ([(result runtime completed) (run1 s f l depth1)]) (if completed result #f))) ; to-key
                   (lambda (s f l) (list s f l)) ; to-value
                   (lambda (val oval) #f) ; prefer?
                   (lambda (key val) ; on-new -- !side-effect on the accumulator!
@@ -60,23 +111,13 @@
                   (lambda (key val oval) void) ; on-prefer
                   )))
 
-;module-level state
-
-;make 4 list accumulators for functions of arities 0..3 in the current accumulation (i.e. one step of the lazy-vector extension)
-(define v-accum (initialize-vector 4 (lambda (ix) null)))
-;make 4 hashtables to store observably distinct functions of arities 0..3
-(define v-ht (initialize-vector 4 (lambda (ix) (make-hash))))
-;make 4 lazy-vectors to store observably distinct functions of each level of complexity; their extenders are set to null b/c they'll be filled in later
-(define v-lv (initialize-vector 4 (lambda (ix) (make-lazy-vector null))))
-
-;(define evaluation-limits '(0 25 5 3)) ; These get a bit slow at depth 11 or so
-(define evaluation-limits '(0 4 4 3)) ; weak limits get it done
 (define v-updaters (list->vector (make-updaters v-ht v-accum evaluation-limits))) ; these will be used to update v-ht primarily but will side effect on v-accum
-(define update-count 0)
+
+
 
 ; Helpers to display the contents of the state
 (define (function-counts) (vector-map (lambda (x) (length (hash-keys x))) v-ht))
-(define (dump-functions) (vector-map (lambda (ht) (map (lambda (x) (list (first (first x)) (fourth x) (second x))) (sort (hash->list ht) (lambda (x y) (< (fourth x) (fourth y)))))) v-ht))
+(define (dump-functions) (vector-map (lambda (ht) (map (lambda (x) (list (first x) (fourth x) (second x))) (sort (hash->list ht) (lambda (x y) (< (fourth x) (fourth y)))))) v-ht))
 
 ; Test the updaters below; the updater's argument is of the form (symbolic-rep, function-rep, weight):
 ;((vector-ref v-updaters 1) '(C21 (R1 (C13 S P31) S) S S) (C21 (R1 (C13 S P31) S) S S) 8) ; this is a terse version of i -> 2*i+3
@@ -145,8 +186,8 @@
                       [f2 (lazy-vector-ref lv0 (second weights))]
                       )             
                  (updater (list 'R0 (first f1) (first f2))
-                                   (R0 (second f1) (second f2))
-                                   (+ 1 (third f1) (third f2)))))]
+                          (R0 (second f1) (second f2))
+                          (+ 1 (third f1) (third f2)))))]
             [(equal? arity 2)
              (for ([weights (ksumj 2 (- depth 1))]) ; R1
                (for* ([f1 (lazy-vector-ref lv3 (first weights))]
@@ -186,8 +227,8 @@
    (make-extender arity updater initial pr-induce)))
 
 ;(time (lazy-vector-ref (vector-ref v-lv 0) 9))
-(time (lazy-vector-ref (vector-ref v-lv 0) 14)) ; Sufficient to get "7" with (7 14 (C10 (C11 (C21 (R1 (C13 S (C13 S P31)) S) S S) S) 0)))
-;(time (lazy-vector-ref (vector-ref v-lv 0) 15))
+;(time (lazy-vector-ref (vector-ref v-lv 0) 14)) ; Sufficient to get "7" with (7 14 (C10 (C11 (C21 (R1 (C13 S (C13 S P31)) S) S S) S) 0)))
+(time (lazy-vector-ref (vector-ref v-lv 0) 15))
 
 ; Aha! Part of the slow-down is that some of these functions are getting complicated; here's two in 1 9:
 ; c.f. Eulerian numbers: http://oeis.org/A000295
@@ -203,8 +244,9 @@
 
 ;(vector-map (lambda (x) (lazy-vector->vector x)) v-lv)
 (dump-functions)
+(displayln l-slow)
 
-(define outname "out/functions14")
+(define outname "out/functions15")
 (require racket/serialize)
 (define ofile (open-output-file (string-append outname ".serial") #:exists 'replace))
 (write (serialize (dump-functions)) ofile)
