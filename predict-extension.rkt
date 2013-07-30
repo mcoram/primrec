@@ -43,9 +43,9 @@
 (define (loop)
   (printf "\n\nEnter a sequence of non-negative integers, like \"0 1 2\" or \"0 1 0 1\" and I'll try to find a function that matches your pattern.\n")
   (printf "Specifically, I'll search for a simple primitive recursive function that matches your sequence when it's evaluated at\n\t0 1 2 3 4 ... 24.\n")
-  (printf "If you want to find a function of two non-negative integers, like multiplication, I evaluate function of two arguments at\n\t (0,0) (1,0) (2,0) (3,0) (4,0) (0,1) (1,1) (2,1) (3,1) (4,1) (0,2) ... (4,4).\n")
-  ;(printf "So, to find e.g. addition use \"0 1 2 3 4 1 2 3 4 5 2 3 4 5 6\" as the query which represents 0..4 plus 0, 1, and 2 respectively.\n")
-  (printf "So, to find e.g. multiplication use \"0 0 0 0 0 0 1 2 3 4 0 2 4 6 8\" as the query which represents 0..4 times 0, 1, and 2 in sequentially.\n")
+  (printf "If you want to find a function of two non-negative integers, like addition, I evaluate functions of two arguments at\n\t (0,0) (0,1) (0,2) (0,3) (0,4) (1,0) (1,1) (1,2) (1,3) (1,4) (2,0) ... (4,4).\n")
+  (printf "So, to find addition use e.g. \"0 1 2 3 4 1 2 3 4 5 2 3 4 5 6\" as the query which represents 0..4 plus 0, 1, and 2 respectively.\n")
+  ;(printf "So, to find multiplication use e.g. \"0 0 0 0 0 0 1 2 3 4 0 2 4 6 8\" as the query which represents 0..4 times 0, 1, and 2 in sequentially.\n")
   (set! s1 (read-line))
   (if (not (equal? s1 ""))
       (begin
