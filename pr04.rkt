@@ -5,11 +5,26 @@
 (require "ksumj.rkt")
 (require "util.rkt")
 (require "run_with_timeout.rkt")
+(require racket/serialize)
 
 ; Limits
 (define timeout-per-eval 5) ; only allow this many seconds for an evaluation
 (define evaluation-limits '(0 25 5 3)) ; These get a bit slow at depth 11 or so
 ;(define evaluation-limits '(0 4 4 3)) ; weak limits get it done
+;Customize this to output as you go
+(define (on-end-extender arity depth)
+  (when (equal? arity 0)
+    (printf "Dumping\n")
+    (define outname "out/functions")
+    (define ofile (open-output-file (string-append outname ".serial") #:exists 'replace))
+    (write (serialize (list arity depth (dump-functions) (dump-slow))) ofile)
+    (close-output-port ofile)
+    (define ofile2 (open-output-file (string-append outname ".txt") #:exists 'replace))
+    (write (dump-functions) ofile2)
+    (write (dump-slow) ofile2)
+    (close-output-port ofile2)
+    ))
+
 
 ;Module-level state ;;;;;;;;;;;;;;;;;;
 
@@ -118,6 +133,7 @@
 ; Helpers to display the contents of the state
 (define (function-counts) (vector-map (lambda (x) (length (hash-keys x))) v-ht))
 (define (dump-functions) (vector-map (lambda (ht) (map (lambda (x) (list (first x) (fourth x) (second x))) (sort (hash->list ht) (lambda (x y) (< (fourth x) (fourth y)))))) v-ht))
+(define (dump-slow) (map (lambda (row) (list (first row) (third row) (fourth row))) l-slow))
 
 ; Test the updaters below; the updater's argument is of the form (symbolic-rep, function-rep, weight):
 ;((vector-ref v-updaters 1) '(C21 (R1 (C13 S P31) S) S S) (C21 (R1 (C13 S P31) S) S S) 8) ; this is a terse version of i -> 2*i+3
@@ -215,6 +231,7 @@
                       (vector-ref v-accum arity) ; the accumulator is our result
                       )])])
       (displayln (list 'end---extender arity ix 'counts (function-counts)))
+      (on-end-extender arity ix)
       result
       )))
 
@@ -226,9 +243,8 @@
    (vector-ref v-lv arity) 
    (make-extender arity updater initial pr-induce)))
 
-;(time (lazy-vector-ref (vector-ref v-lv 0) 9))
-;(time (lazy-vector-ref (vector-ref v-lv 0) 14)) ; Sufficient to get "7" with (7 14 (C10 (C11 (C21 (R1 (C13 S (C13 S P31)) S) S S) S) 0)))
-(time (lazy-vector-ref (vector-ref v-lv 0) 15))
+;(define dummy (time (lazy-vector-ref (vector-ref v-lv 0) 16))) ; worked got to 10
+(define dummy (time (lazy-vector-ref (vector-ref v-lv 0) 50))) ; may take a LONG time; will kill when bored.
 
 ; Aha! Part of the slow-down is that some of these functions are getting complicated; here's two in 1 9:
 ; c.f. Eulerian numbers: http://oeis.org/A000295
@@ -246,11 +262,11 @@
 (dump-functions)
 (displayln l-slow)
 
-(define outname "out/functions15")
-(require racket/serialize)
-(define ofile (open-output-file (string-append outname ".serial") #:exists 'replace))
-(write (serialize (dump-functions)) ofile)
-(close-output-port ofile)
-(define ofile2 (open-output-file (string-append outname ".txt") #:exists 'replace))
-(write (dump-functions) ofile2)
-(close-output-port ofile2)
+;(define outname "out/functions15")
+;(require racket/serialize)
+;(define ofile (open-output-file (string-append outname ".serial") #:exists 'replace))
+;(write (serialize (dump-functions)) ofile)
+;(close-output-port ofile)
+;(define ofile2 (open-output-file (string-append outname ".txt") #:exists 'replace))
+;(write (dump-functions) ofile2)
+;(close-output-port ofile2)
