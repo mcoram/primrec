@@ -19,7 +19,8 @@ Instead, the complexity of 7 is 14, viz:
   (#(15) 19 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) P11) S S) (C11 S S)) 0))
   (#(16) 19 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) S) S S) (C11 S S)) 0))
 
-Observation: To depth 19, the ordering induced on the non-negative integers by their complexity is monotonic with the ordinary ordering. We see 0..6 appear using their direct representations, then see 7 at 14, then 8,9,10 at 16 10,11,12 at 18 and 14,15,16 at 19.
+Observation: To depth 19, the ordering induced on the non-negative integers by their complexity is monotonic with the ordinary ordering. We see 0..6 appear using their direct representations, then see 7 at 14, then 8,9,10 at 16 10,11,12 at 18 and 14,15,16 at 19. Depth 20 adds 17:
+  (#(17) 20 (C10 (C11 (C21 (R1 (C13 S (C13 S (C13 S P31))) S) S S) (C11 S (C11 S S))) 0)))
 
 Claim: 100 has complexity 29 or less.
 Proof:
