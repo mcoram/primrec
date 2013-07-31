@@ -261,6 +261,9 @@
 ;(define dummy (time (lazy-vector-ref (vector-ref v-lv 0) 16))) ; worked. got to the arity 0 function 10
 (define dummy (time (lazy-vector-ref (vector-ref v-lv 0) 50))) ; may take a LONG time; will kill when bored.
 
+; got to 20 in about a day and a half:
+; (end---extender 0 20 counts #(18 37162 109573 25428))
+
 ; Aha! Part of the slow-down is that some of these functions are getting complicated; here's two in 1 9:
 ; c.f. Eulerian numbers: http://oeis.org/A000295
 ;(on-new (0 0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191) ((R0 (R1 (C13 S (C13 S P31)) P11) 0) #<procedure:phi> 9))
