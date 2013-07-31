@@ -9,8 +9,9 @@
 
 ; Limits
 (define timeout-per-eval 5) ; only allow this many seconds for an evaluation
-(define evaluation-limits '(0 25 5 3)) ; These get a bit slow at depth 11 or so
-;(define evaluation-limits '(0 4 4 3)) ; weak limits get it done
+(define evaluation-limits '(-1 25 5 3)) ; The value N_j in this list means to evaluate functions of arity j on the integers in the set {0..(N_j-1)}^j to test for distinct functions.
+;Note that large values mean that more functions will fail to complete before the timeout. Small values mean that distinct functions won't be noticed as distinct when they are the same on these values.
+
 ;Customize this to output as you go
 (define (on-end-extender arity depth)
   (when (equal? arity 0)
@@ -40,6 +41,9 @@
 (define update-count 0)
 
 ;build evaluators of the primrecs of arity 0..3 on arguments from the set (0..(depth1-1))^arity
+;the tricky bit here is to use run-with-timeout to detect evaluations that are taking too long.
+;the actual work of evaluating on the appropriate values is specified in the evaluation-body argument to this macro, which is supplied next.
+
 (define-syntax-rule (make-evaluator result s f l depth result-size evaluation-body timeout)
   (lambda (s f l depth)
     (define rs result-size)
@@ -59,6 +63,7 @@
           ))
       (values result result-time completed))))
 
+; Use the preceding to actually generate the evaluators for arity 0..3. Do the work by mutating result, which gets set up by the macro.
 (define v-evaluators
   (vector 
    (make-evaluator result s f l depth 1
@@ -84,7 +89,8 @@
                        (set! counter (+ 1 counter))))
                    timeout-per-eval)))
 
-; @@ I notice that evaluation for constants actually happens before the call to the evaluator in the induce step if arity=0; needs fix? would work in the macro version. hmm.
+; @@ I notice that evaluation for constants actually happens before the call to the evaluator in the induce step if arity=0 (i.e. when the (Ci0 ...) construction is made)
+; needs fix? probably. would work in the macro version. hmm.
 
 ; a moderately generic function to construct hashtable updaters with "programmable behavior"
 (define (make-updater ht ok? to-key to-value prefer? on-new on-prefer) 
@@ -126,9 +132,7 @@
                   (lambda (key val oval) void) ; on-prefer
                   )))
 
-(define v-updaters (list->vector (make-updaters v-ht v-accum evaluation-limits))) ; these will be used to update v-ht primarily but will side effect on v-accum
-
-
+(define v-updaters (list->vector (make-updaters v-ht v-accum evaluation-limits))) ; these will be used to update v-ht primarily but will side effect on v-accum, l-slow, update-count
 
 ; Helpers to display the contents of the state
 (define (function-counts) (vector-map (lambda (x) (length (hash-keys x))) v-ht))
@@ -153,6 +157,8 @@
 (define list-of-compose '((C10 C20 C30) (C11 C21 C31) (C12 C22 C32) (C13 C23 C33)))
 (define list-of-compose-fun (list (list C10 C20 C30) (list C11 C21 C31) (list C12 C22 C32) (list C13 C23 C33)))
 
+; This is the heart of the algorithm. It's job is to call the updater on all possible ways of forming a larger primitive recursive expression whose complexity is depth
+; of arity arity from pre-computed functions of lesser complexity that are stored in the vector of lazy vectors v-lv.
 (define (pr-induce depth arity updater)
   (let* 
       ([clist (nth list-of-compose arity)]
@@ -169,16 +175,22 @@
        [lv2 (vector-ref v-lv 2)]
        [lv3 (vector-ref v-lv 3)])
     (begin 
+      ; Here, for example is the code for using the composition C1j, where j is the target arity, to build a result of the form (C1j f1 f2) and pass it to the updater
+      ; The purpose of the first for loop over weights is to break the problem down. To compute such a result whose complexity is depth requires two arguments f1 and f2
+      ; which themselves need to have complexities whose sum is (depth-1) (the -1 is because C1j already adds 1 complexity). The call to ksumj tells us all the ways this could be done.
+      ; e.g. for depth 4 we need to sum to 3 so we could use (2 1) or (1 2), i.e. choose an f1 of complexity 2 and f2 of complexity 1 or vice versa.
       (for ([weights (ksumj 2 (- depth 1))]) ; C1j
         ;(displayln (list 'weights weights))
+        ; These loops pull out f1 and f2 from the lazy-vector of the appropriate arities at the appropriate index of complexity.
         (for* ([f1 (lazy-vector-ref lv1 (first weights))]
                #:unless (and (list? (first f1)) (equal? (first (first f1)) c1)) ; Force C1j constructions to right associate.
                [f2 (lazy-vector-ref lv (second weights))]
                #:unless (and (equal? c1 'C10) (list? (first f2)) (equal? (first (first f2)) c1)) ; Force C10 to be used only once (use a C11 chain as first arg.)
                )
           (updater (list c1 (first f1) (first f2)) 
-                   (c1f (second f1) (second f2))
+                   (c1f (second f1) (second f2)) ;@@ fix needed for arity 0 case to delay or allow timeout in the computation.
                    (+ 1 (third f1) (third f2)))))
+      
       (for ([weights (ksumj 3 (- depth 1))]) ; C2j
         (for* ([f1 (lazy-vector-ref lv2 (first weights))]
                [f2 (lazy-vector-ref lv (second weights))]
@@ -187,6 +199,7 @@
           (updater (list c2 (first f1) (first f2) (first f3)) 
                    (c2f (second f1) (second f2) (second f3))
                    (+ 1 (third f1) (third f2) (third f3)))))
+      
       (for ([weights (ksumj 4 (- depth 1))]) ; C3j
         (for* ([f1 (lazy-vector-ref lv3 (first weights))]
                [f2 (lazy-vector-ref lv (second weights))]
@@ -196,6 +209,7 @@
           (updater (list c3 (first f1) (first f2) (first f3) (first f4)) 
                    (c3f (second f1) (second f2) (second f3) (second f4))
                    (+ 1 (third f1) (third f2) (third f3) (third f4)))))
+      
       (cond [(equal? arity 1)
              (for ([weights (ksumj 2 (- depth 1))]) ; R0
                (for* ([f1 (lazy-vector-ref lv2 (first weights))]
@@ -204,6 +218,7 @@
                  (updater (list 'R0 (first f1) (first f2))
                           (R0 (second f1) (second f2))
                           (+ 1 (third f1) (third f2)))))]
+      
             [(equal? arity 2)
              (for ([weights (ksumj 2 (- depth 1))]) ; R1
                (for* ([f1 (lazy-vector-ref lv3 (first weights))]
@@ -213,7 +228,7 @@
                           (R1 (second f1) (second f2))
                           (+ 1 (third f1) (third f2)))))]))))
 
-
+; The extenders are the functions that will build the lazy vectors that store all the functions. this code builds them. It defers all the "real work" to the call to induce.
 (define (make-extender arity updater initial induce)
   (lambda (lvself ix)
     (displayln (list 'begin-extender arity ix 'counts (function-counts)))
@@ -221,7 +236,7 @@
                    [(< ix 1) null]
                    [(equal? ix 1)
                     (begin
-                      (for ([x initial]) (apply updater x))
+                      (for ([x initial]) (apply updater x)) ; install the initial functions at index 1 (would need fix if they weren't all complexity 1 in pr-initial)
                       initial
                       )] 
                    [else
@@ -243,7 +258,7 @@
    (vector-ref v-lv arity) 
    (make-extender arity updater initial pr-induce)))
 
-;(define dummy (time (lazy-vector-ref (vector-ref v-lv 0) 16))) ; worked got to 10
+;(define dummy (time (lazy-vector-ref (vector-ref v-lv 0) 16))) ; worked. got to the arity 0 function 10
 (define dummy (time (lazy-vector-ref (vector-ref v-lv 0) 50))) ; may take a LONG time; will kill when bored.
 
 ; Aha! Part of the slow-down is that some of these functions are getting complicated; here's two in 1 9:
@@ -251,7 +266,7 @@
 ;(on-new (0 0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191) ((R0 (R1 (C13 S (C13 S P31)) P11) 0) #<procedure:phi> 9))
 ;(on-new (0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) ((R0 (R1 (C13 S (C13 S P31)) S) 0) #<procedure:phi> 9))
 ; DrRacket segfaults in 1 11 with 8192 memory.
-;Yay. The new R0 and R1 help. New challenges:
+;Yay. The new R0 and R1 help. New challenges: (these are now ok, thanks to the timeout code; well "ok" means the program tosses them into slow and moves on)
 ;(running (R0 (R1 (C13 S (C13 S (C13 S P31))) P11) 0) 11)
 ;(running (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) P11) 0) 12)
 ;(running (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0) 12)
