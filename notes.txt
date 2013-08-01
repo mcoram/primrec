@@ -72,13 +72,15 @@ One of these might exceed it.
   (#(0 2 23 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (R0 (C12 S (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S)) 0))
   (#(0 2 19 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (R0 (C12 S (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S)) 0))
 
-Or this thing that I haven't been able to evaluate at 4 despite days of trying
+Or this thing that I haven't been able to evaluate at 4 despite days of letting the computer try.
   (#(0 1 4 48 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 12 (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0))
 Or, bigger presumably, but still at complexity 12:
   (#(0 1 5 127 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 12 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0))
 So what number is this?: (evaluating the former at 4 for complexity 12+9+1=22)
   (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))
-Let's call it Marc's first big number, eh? :) I think I'll have to translate the primitive recursion into something else if I'm ever going to find out.
+Let's call it Marc's first big number, eh? :) I think I'll have to translate the primitive recursion into something else if I'm ever going to find out. Well, here's a way forward -- diagnose the iterations:
+  (C10 (R0-diagnose (R1-diagnose (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))
+It seems that to compute f(4) it uses A052549 a(0)=1; a(n) = 5*2^(n-1)-1, n>0. (evaluated at n+1), so I think f(4) is 5*2^128-1. The neat bit is that I (suspect) the multiplier 5 comes from f(2) and the exponent of 127 comes from f(3). I suppose I should really "read the code" and check but that seems to be the idea. So (speculating) f(5) would be 127*2^(5*2^128)-1. Yeesh. No wonder it's slow.
 
 Let's check some early slows against OEIS:
 (#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 -1) 9 (R0 (R1 (C13 S (C13 S P31)) S) 0))

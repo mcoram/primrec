@@ -1,6 +1,6 @@
 #lang racket
 
-(provide Z S P11 P21 P22 P31 P32 P33 R0 R1 C10 C11 C12 C13 C20 C21 C22 C23 C30 C31 C32 C33)
+(provide Z S P11 P21 P22 P31 P32 P33 R0 R1 C10 C11 C12 C13 C20 C21 C22 C23 C30 C31 C32 C33 R0-diagnose R1-diagnose)
 
 ; Primitive operations
 (define Z 0)
@@ -19,7 +19,7 @@
       (for ([i (in-range 0 x)])
         (set! u (f u i)))
       u)))
-(define (R1-iter f g) ;  primitive recursion on an arity 2 and arity 0 (tech. I present the args to f in reverse classic order)
+(define (R1-iter f g) ;  primitive recursion on an arity 3 and arity 1 (tech. I present the args to f in reverse classic order)
   (lambda (x y)
     (let ([u (g y)])
       (for ([i (in-range 0 x)])
@@ -39,6 +39,22 @@
                       (let ([x1m (- x1 1)])
                         (f (phi x1m x2) x1m x2))))]) 
     phi))
+(define (R0-diagnose f g) ;  primitive recursion on an arity 2 and arity 0 (tech. I present the args to f in reverse classic order)
+  (lambda (x)
+    (let ([u g])
+      (displayln (list 'R0-looping-to x 'initial 'val u))
+      (for ([i (in-range 0 x)])
+        (set! u (f u i))
+        (displayln (list 'R0-looping-to x 'at i 'val u)))
+      u)))
+(define (R1-diagnose f g) ;  primitive recursion on an arity 2 and arity 0 (tech. I present the args to f in reverse classic order)
+  (lambda (x y)
+    (let ([u (g y)])
+      (displayln (list 'R1-looping-to x 'initial 'val u 'argument y))
+      (for ([i (in-range 0 x)])
+        (set! u (f u i y))
+        (displayln (list 'R1-looping-to x 'at i 'val u 'argument y)))
+      u)))
 (define R0 R0-iter)
 (define R1 R1-iter)
 
@@ -93,3 +109,4 @@
 
 ;(R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) P11) 0)
 ;(time (for/list ([x (in-range 6)]) ((R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) P11) 0) x)))
+; no result after a couple days of trying -- too huge?
