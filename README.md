@@ -3,7 +3,7 @@ primrec
 
 Explore the space of primitive recursive functions. The work here is in the spirit of inductive programming or generative programming and was inspired by [MagicHaskeller](http://nautilus.cs.miyazaki-u.ac.jp/~skata/MagicHaskeller.html) and [Incremental Learning in Inductive Programming](http://www.cogsys.wiai.uni-bamberg.de/aaip09/aaip09_submissions/incremental.pdf).
 
-To get a flavor for whats going on, try running predict-extension.rkt. You'll discover that if you type in "2 3 4 5" then the results tell you that the simplest
+To get a flavor for what's going on, try running predict-extension.rkt. You'll discover that if you type in "2 3 4 5" then the results tell you that the simplest
 primitive recursive function that fits this sequence is the
 composition of S with S, which we write as (C11 S S). Here, S stands
 for the succesor function S: x -> x+1, and composition is written
@@ -57,9 +57,4 @@ A limitation of this strategy is that functions could be identical on these sets
 the algorithm only keeps the one it encountered first. The second limitation is that you have to evaluate at all.
 I allow 5 seconds for the computation to complete; those that don't complete are called "slow" and are recorded in l-slow,
 but not used in further exploration.
-
-Many of the functions nearly finish evaluation, but some are surprisingly slow like:
-
-    (#(0 0 1 4 48 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 12 (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) P11) 0))
-
 ]]
