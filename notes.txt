@@ -19,8 +19,32 @@ Instead, the complexity of 7 is 14, viz:
   (#(15) 19 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) P11) S S) (C11 S S)) 0))
   (#(16) 19 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) S) S S) (C11 S S)) 0))
 
-Observation: To depth 19, the ordering induced on the non-negative integers by their complexity is monotonic with the ordinary ordering. We see 0..6 appear using their direct representations, then see 7 at 14, then 8,9,10 at 16 10,11,12 at 18 and 14,15,16 at 19. Depth 20 adds 17:
+Observation: To depth 19, the ordering induced on the non-negative integers by their complexity is monotonic with the ordinary ordering. We see 0..6 appear using their direct representations, then see 7 at 14, then 8,9,10 at 16 10,11,12 at 18 and 14,15,16 at 19.
+
+Depth 20 adds 17:
   (#(17) 20 (C10 (C11 (C21 (R1 (C13 S (C13 S (C13 S P31))) S) S S) (C11 S (C11 S S))) 0)))
+Depth 21 adds: 18..25, 27, 29, 31, 40. So the order isn't monotone anymore (yay! finally). 27,29,31, and 40 are simpler than 26,28,30,32..39 as well as 41..
+  (#(18) 21 (C10 (C11 (C21 (R1 (C13 S (C23 (R1 (C13 S P31) S) P31 P33)) P11) S S) (C11 S S)) 0))
+  (#(19) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) P11) S P11) (C11 S (C11 S S))) 0))
+  (#(20) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P33) P11) S S) (C11 S (C11 S S))) 0))
+  (#(21) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P33 P31) P11) S S) (C11 S S)) 0))
+  (#(22) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P33 P31) S) S S) (C11 S S)) 0))
+  (#(23) 21 (C20 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) (C10 (C11 S (C11 S S)) 0) (C10 S 0)))
+  (#(24) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) P11) S S) (C11 S S)) 0))
+  (#(25) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S)) 0))
+  (#(27) 21 (C20 (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S) (C10 (C11 S (C11 S S)) 0) 0))
+  (#(29) 21 (C20 (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) S) (C10 (C11 S (C11 S S)) 0) 0))
+  (#(31) 21 (C20 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) (C10 (C11 S (C11 S (C11 S S))) 0) 0)))
+  (#(40) 21 (C20 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) (C10 (C11 S (C11 S S)) 0) 0))
+  [I might be missing something because of the way I treat l-slow, unfortunately.]
+
+Interestingly, the non-incremental newborns (and 23) all use C20 at the top-level.
+     27 applies f=(R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S) to (3,0).
+            (f j 0)=3^j. (f j 1) is A008776 Pisot sequences E(2,6), L(2,6), P(2,6), T(2,6). (f j 2)=3^(j+1). Curious. (f j 4) is A003946 (off by one). Huh.
+     29 applies (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) S) to (3,0)
+     31 applies f=(R1 (C23 (R1 (C13 S P31) S) P31 P31) S) to (4,0)
+            (f j 0)=2^(j+1)-1=2*2^j-1. (f j 1)=3*2^j-1. Conjecture (f j k)=(k+2)*2^j-1. Seems to work.
+     40 applies (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) to (3,0)
 
 Claim: 100 has complexity 29 or less.
 Proof:
@@ -81,6 +105,7 @@ So what number is this?: (evaluating the former at 4 for complexity 12+9+1=22)
 Let's call it Marc's first big number, eh? :) I think I'll have to translate the primitive recursion into something else if I'm ever going to find out. Well, here's a way forward -- diagnose the iterations:
   (C10 (R0-diagnose (R1-diagnose (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))
 It seems that to compute f(4) it uses A052549 a(0)=1; a(n) = 5*2^(n-1)-1, n>0. (evaluated at n+1), so I think f(4) is 5*2^128-1. The neat bit is that I (suspect) the multiplier 5 comes from f(2) and the exponent of 127 comes from f(3). I suppose I should really "read the code" and check but that seems to be the idea. So (speculating) f(5) would be 127*2^(5*2^128)-1. Yeesh. No wonder it's slow.
+Interesting, so if I change the code to keep slow functions around for growing new results, I'll get some truly giant arity 0 results by depth 22. Neat. (well, they'll prob. timeout. heh)
 
 Let's check some early slows against OEIS:
 (#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 -1) 9 (R0 (R1 (C13 S (C13 S P31)) S) 0))
