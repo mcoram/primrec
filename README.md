@@ -23,7 +23,7 @@ What do you expect to get if you input "1 2 4"? Did you get it?
 The predict-extension.rkt code does this using the results of running pr04.rkt: out/functions.serial
 which currently documents all arity 0 functions up to depth 19, arity 1 functions to depth 2 less,
 arity 2 functions to depth 3 less, and arity 3 functions to depth 4 less, but if you run pr04.rkt yourself
-it will essentially forever trying to get ever deeper (ok, it'll terminate if it ever gets to 50).
+it will essentially run forever trying to get ever deeper (ok, it'll terminate if it ever gets to 50).
 By depth 19 it has discovered 17 functions of arity 0 (0..16 actually), 17867 functions of arity 1, 52342 functions of arity 2, and 14322 functions of arity 3.
 By depth 21 the counts are up to 30, 71330, 223609, and 53828 respectively.
 So far, the code only considers primitive recursive functions of up-to arity 3.
