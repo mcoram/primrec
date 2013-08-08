@@ -1,5 +1,5 @@
 Observation: 7 is the first number that has a representation simpler than its direct representation of (C10 (C11 S (C11 S (C11 S (C11 S (C11 S (C11 S S)))))) 0), which has complexity 15.
-Instead, the complexity of 7 is 14, viz:
+Instead, the complexity of 7 is 14. Confer the following results which list the results as (#(<<result of evaluation>>) <<complexity>> <<primitive recursive code>>)
 
   (#(0) 1 0)
   (#(1) 3 (C10 S 0))
@@ -15,15 +15,29 @@ Instead, the complexity of 7 is 14, viz:
   (#(11) 18 (C10 (C11 (C21 (R1 (C13 S (C13 S (C13 S (C13 S P31)))) S) S S) S) 0))
   (#(12) 18 (C10 (C11 (C21 (R1 (C13 S (C13 S (C13 S P31))) P11) S S) (C11 S S)) 0))
   (#(13) 18 (C10 (C11 (C21 (R1 (C13 S (C13 S (C13 S P31))) S) S S) (C11 S S)) 0))
+
+Observation: To depth 18, the ordering induced on the non-negative integers by their complexity is monotonic with the ordinary ordering. We see 0..6 appear using their direct representations, then see 7 at 14, then 8,9,10 at 16 10,11,12 at 18.
+
+Continuing to depth 19 adds the following:
   (#(14) 19 (C10 (C11 (R0 (C12 S (R1 (C13 S P31) S)) 0) (C11 S (C11 S (C11 S S)))) 0)))
   (#(15) 19 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) P11) S S) (C11 S S)) 0))
   (#(16) 19 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) S) S S) (C11 S S)) 0))
 
-Observation: To depth 19, the ordering induced on the non-negative integers by their complexity is monotonic with the ordinary ordering. We see 0..6 appear using their direct representations, then see 7 at 14, then 8,9,10 at 16 10,11,12 at 18 and 14,15,16 at 19.
+But actually this list is incomplete. The search is not completely exhaustive because functions that are too slow to evaluate
+are not reused in further constructions in the current search algorithm. Consider, for example, the first slow arity 1 function (the only slow function of complexity <=10):
+  (#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 -1) 9 (R0 (R1 (C13 S (C13 S P31)) S) 0))
+We can recognize these as the Eulerian numbers. [C.f.: http://oeis.org/A000295 which has an extra 0 at the beginning but is otherwise identical.]
+Evaluating this function at 4 gives the value 26 with a construction that is also of complexity 19 so we should add the entry:
+  (#(26) 19 (C10 (R0 (R1 (C13 S (C13 S P31)) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0)))
+So depth 19 adds 14,15,16, and 26. 
+
+Consequently 26 is the first natural number that has a simpler representation as a primitive recursive function than some of the numbers smaller than itself have (namely 17..25).
+==================================================================================================================================================================================
 
 Depth 20 adds 17:
   (#(17) 20 (C10 (C11 (C21 (R1 (C13 S (C13 S (C13 S P31))) S) S S) (C11 S (C11 S S))) 0)))
-Depth 21 adds: 18..25, 27, 29, 31, 40. So the order isn't monotone anymore (yay! finally). 27,29,31, and 40 are simpler than 26,28,30,32..39 as well as 41..
+
+Depth 21 adds: 18..25, 27, 29, 31, 40. So the order isn't monotone anymore (yay! finally). 
   (#(18) 21 (C10 (C11 (C21 (R1 (C13 S (C23 (R1 (C13 S P31) S) P31 P33)) P11) S S) (C11 S S)) 0))
   (#(19) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) P11) S P11) (C11 S (C11 S S))) 0))
   (#(20) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P33) P11) S S) (C11 S (C11 S S))) 0))
@@ -36,7 +50,11 @@ Depth 21 adds: 18..25, 27, 29, 31, 40. So the order isn't monotone anymore (yay!
   (#(29) 21 (C20 (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) S) (C10 (C11 S (C11 S S)) 0) 0))
   (#(31) 21 (C20 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) (C10 (C11 S (C11 S (C11 S S))) 0) 0)))
   (#(40) 21 (C20 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) (C10 (C11 S (C11 S S)) 0) 0))
-  [I might be missing something because of the way I treat l-slow, unfortunately.]
+
+This list is again incomplete because of the Eulerian numbers function. Applying it to 5 yields 57:
+  (#(57) 21 (C10 (R0 (R1 (C13 S (C13 S P31)) S) 0) (C10 (C11 S (C11 S (C11 S (C11 S S)))) 0)))
+
+If this is the complete list, then 27,29,31, 40, and 57 are simpler than 28,30,32..39 as well as 41..56 and 58..
 
 Interestingly, the non-incremental newborns (and 23) all use C20 at the top-level.
      27 applies f=(R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S) to (3,0).
@@ -44,7 +62,30 @@ Interestingly, the non-incremental newborns (and 23) all use C20 at the top-leve
      29 applies (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) S) to (3,0)
      31 applies f=(R1 (C23 (R1 (C13 S P31) S) P31 P31) S) to (4,0)
             (f j 0)=2^(j+1)-1=2*2^j-1. (f j 1)=3*2^j-1. Conjecture (f j k)=(k+2)*2^j-1. Seems to work.
-     40 applies (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) to (3,0)
+     40 applies f=(R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) to (3,0)
+            (f j 0)=(3^(j+1) - 1)/2. (f j 1)=A060816(j+1). (f j 2) doesn't appear to be in OEIS but still obeys a(n)=3*a(n-1)+1; seems the base case is just set as (k+1).
+Hmmm... let's check if l-slow is hurting me. I can also construct 40 using the slow arity 1 function (documented below as A003462):
+  (#(0 1 4 13 40 121 364 1093 3280 9841 29524 88573 265720 797161 2391484 7174453 21523360 -1 -1 -1 -1 -1 -1 -1 -1) 12 (R0 (C22 (R1 (C13 S (C13 S P31)) S) P21 P21) 0))
+  So 40=(C10 (R0 (C22 (R1 (C13 S (C13 S P31)) S) P21 P21) 0) (C10 (C11 S (C11 S (C11 S S))) 0)), applying it to 4, but that's complexity 22, so it hasn't hurt me in this way at least yet.
+
+Depth 22 adds: 28,32,39 (still missing 26, 30,33..38 as well as 41..)
+  (#(28) 22 (C10 (C11 (R0 (R1 (C13 S P31) S) 0) (C11 (C21 (R1 (C13 S P31) S) S S) (C11 S S))) 0))
+  (#(32) 22 (C20 (C22 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) P22 P22) 0 (C10 (C11 S (C11 S S)) 0)))
+  (#(39) 22 (C20 (C22 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) P22 P22) 0 (C10 (C11 S (C11 S S)) 0))))
+Actually, from the discussion below (c.f. Marc's big number), depth 22 also adds at least two results which use slow functions
+and so aren't in the present search. I.e. if I change the search to reuse slow functions, I'd expect to see:
+   (#(-1) 22 (C10 (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))) ; the -1 is because it'd still take too long to compute
+   (#(-1) 22 (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))) ; which I conjecture is 5*2^128-1=1701411834604692317316873037158841057279
+I conjecture that these are the first "surprisingly big" primitive recursive numbers. (I've informally checked slow functions of complexity 12 or less and these seem like the only candidates.)
+
+
+We can predict that at depth 23, we'll definitely see the successors of everything at 21, so 26, 30, 41 will appear among who knows what else.
+  E.g. 26 might show up this way if not found some other way first:
+    (#(26) 23 (C10 (C11 S (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S))) 0)) 
+  41 and 30 were found as successors already at this point (26 wasn't found in this form because of the way I enforce accociativity of C10 and C11 in the search)
+    (on-new #(41) ((C10 S (C20 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) (C10 (C11 S (C11 S S)) 0) 0)) 41 23))
+    (on-new #(30) ((C10 S (C20 (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) S) (C10 (C11 S (C11 S S)) 0) 0)) 30 23))
+
 
 Claim: 100 has complexity 29 or less.
 Proof:
@@ -67,11 +108,14 @@ Hmm: 1023 has complexity 27 or less: (simpler?)
    Just use j->2^j-1, which has complexity 10, instead.
      (#(0 1 3 7 15 31 63 127 255 511 1023 2047 4095 8191 16383 32767 65535 131071 262143 524287 1048575 2097151 4194303 8388607 16777215) 10 (R0 (C22 (R1 (C13 S P31) S) P21 P21) 0))
    (C10 (R0 (C22 (R1 (C13 S P31) S) P21 P21) 0) (C10 (C11 (C21 (R1 (C13 S (C13 S P31)) S) S S) (C11 S S)) 0))
+I notice that trying the trick used for 31 doesn't actually help; it has complexity 28, since 9 isn't "simpler" than 10. (It would get us 2047 @ 28, though) Viz:
+   Apply f=(R1 (C23 (R1 (C13 S P31) S) P31 P31) S) to (9,0)
+   1023=(C20 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) (C10 (C11 (C21 (R1 (C13 S (C13 S (C13 S P31))) S) S S) S) 0) 0)
 
 There are bigger numbers at that complexity.
 E.g.: 76457 @ 19+7+1=27
    (evaluation-timeout (R0 (R1 (C13 S (C23 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) P33 P31)) S) 0) 19 #(0 1 7 76457 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1))
-   (C10 (R0 (R1 (C13 S (C23 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) P33 P31)) S) 0) (C10 (C11 S (C11 S S)) 0))
+   76457=(C10 (R0 (R1 (C13 S (C23 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) P33 P31)) S) 0) (C10 (C11 S (C11 S S)) 0))
 Or: 72701268 @ 18+7+1=26
    (C10 (R0 (R1 (C13 (C21 (R1 (C13 S (C13 S (C13 S P31))) P11) S S) P31) S) 0) (C10 (C11 S (C11 S S)) 0))
 From the slow function: (which fortunately wasn't too slow for me to obtain this result; some of the other slows might be bigger)
@@ -95,7 +139,8 @@ One of these might exceed it.
   (#(0 3 32 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (R0 (C12 S (R1 (C23 (R1 (C13 S P31) S) P31 P31) (C11 S S))) 0))
   (#(0 2 23 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (R0 (C12 S (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S)) 0))
   (#(0 2 19 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (R0 (C12 S (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S)) 0))
-
+E.g. (taking the second, which is "in the lead"):
+  (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) (C10 (C11 S S) 0)) (C10 (C11 S (C11 S S)) 0)) == ??? @ 24.
 Or this thing that I haven't been able to evaluate at 4 despite days of letting the computer try.
   (#(0 1 4 48 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 12 (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0))
 Or, bigger presumably, but still at complexity 12:
