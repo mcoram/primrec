@@ -55,8 +55,12 @@ Depth 21 adds: 18..25, 27, 29, 31, 40.
 
 This list is again incomplete because of the Eulerian numbers function. Applying it to 5 yields 57:
   (#(57) 21 (C10 (R0 (R1 (C13 S (C13 S P31)) S) 0) (C10 (C11 S (C11 S (C11 S (C11 S S)))) 0)))
+We're also missing the result of this slow function applied to 4:
+  (#(1 3 8 19 42 89 184 375 758 1525 3060 6131 12274 24561 49136 98287 196590 393197 786412 1572843 3145706 6291433 12582888 -1 -1) 11 (R0 (R1 (C13 S (C13 S P31)) S) (C10 S 0)))
+Yielding 42:
+  (#(42) 21 (C10 (R0 (R1 (C13 S (C13 S P31)) S) (C10 S 0)) (C10 (C11 S (C11 S (C11 S S))) 0)))
 
-If this is the complete list, then 27,29,31, 40, and 57 are simpler than 28,30,32..39 as well as 41..56 and 58..
+If this is the complete list, then 27,29,31, 40, 42, and 57 are simpler than 28,30,32..39 as well as 41,43..56 and 58..
 
 Interestingly, the non-incremental newborns (and 23) all use C20 at the top-level.
      27 applies f=(R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S) to (3,0).
@@ -87,7 +91,13 @@ We can predict that at depth 23, we'll definitely see the successors of everythi
     (on-new #(30) ((C10 S (C20 (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) S) (C10 (C11 S (C11 S S)) 0) 0)) 30 23))
 We'll also find the next Eulerian number (by applying it to 6):
    (#(120) 23 (C10 (R0 (R1 (C13 S (C13 S P31)) S) 0) (C10 (C11 S (C11 S (C11 S (C11 S (C11 S S))))) 0)))
-Presumably we're missing additional fancy things from l-slow by this point.
+Presumably we're missing additional fancy things from l-slow by this point, like applying:
+  (#(0 0 1 5 18 58 179 543 1636 4916 14757 44281 132854 398574 1195735 3587219 10761672 32285032 -1 -1 -1 -1 -1 -1 -1) 11 (R0 (R1 (C13 S (C13 S (C13 S P31))) P11) 0))
+to 5 to get 58:
+ (#(58) 23 (C10 (R0 (R1 (C13 S (C13 S (C13 S P31))) P11) 0) (C10 (C11 S (C11 S (C11 S (C11 S S)))) 0)))
+Or applying one of the complexity 13 slow functions to 4.... Clearly it's time to run something more systematic to deal with these slow cases.
+
+Nevertheless, let's look ahead a bit:
 
 Claim: 100 has complexity 29 or less.
 Proof:
