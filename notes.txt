@@ -23,7 +23,7 @@ Continuing to depth 19 adds the following:
   (#(15) 19 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) P11) S S) (C11 S S)) 0))
   (#(16) 19 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) S) S S) (C11 S S)) 0))
 
-But actually this list is incomplete. The search is not completely exhaustive because functions that are too slow to evaluate
+But, actually, this list is incomplete. The search is not completely exhaustive because functions that are too slow to evaluate
 are not reused in further constructions in the current search algorithm. Consider, for example, the first slow arity 1 function (the only slow function of complexity <=10) is:
   (#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 -1) 9 (R0 (R1 (C13 S (C13 S P31)) S) 0))
 We can recognize this as the sequence of Eulerian numbers for exactly m=1 ascents. 
@@ -39,7 +39,7 @@ Consequently 26 is the first natural number that has a simpler representation as
 Depth 20 adds 17:
   (#(17) 20 (C10 (C11 (C21 (R1 (C13 S (C13 S (C13 S P31))) S) S S) (C11 S (C11 S S))) 0)))
 
-Depth 21 adds: 18..25, 27, 29, 31, 40. So the order isn't monotone anymore (yay! finally). 
+Depth 21 adds: 18..25, 27, 29, 31, 40. 
   (#(18) 21 (C10 (C11 (C21 (R1 (C13 S (C23 (R1 (C13 S P31) S) P31 P33)) P11) S S) (C11 S S)) 0))
   (#(19) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P33) P11) S P11) (C11 S (C11 S S))) 0))
   (#(20) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P33) P11) S S) (C11 S (C11 S S))) 0))
@@ -70,14 +70,14 @@ Hmmm... I can also construct 40 using the slow arity 1 function (documented belo
   (#(0 1 4 13 40 121 364 1093 3280 9841 29524 88573 265720 797161 2391484 7174453 21523360 -1 -1 -1 -1 -1 -1 -1 -1) 12 (R0 (C22 (R1 (C13 S (C13 S P31)) S) P21 P21) 0))
   So 40=(C10 (R0 (C22 (R1 (C13 S (C13 S P31)) S) P21 P21) 0) (C10 (C11 S (C11 S (C11 S S))) 0)), applying it to 4, but that's complexity 22, so it hasn't hurt me in this way.
 
-Depth 22 adds: 28,32,39 (still missing 26, 30,33..38 as well as 41..)
+Depth 22 adds: 28,32,39 (still missing 30,33..38 as well as 41..?)
   (#(28) 22 (C10 (C11 (R0 (R1 (C13 S P31) S) 0) (C11 (C21 (R1 (C13 S P31) S) S S) (C11 S S))) 0))
   (#(32) 22 (C20 (C22 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) P22 P22) 0 (C10 (C11 S (C11 S S)) 0)))
   (#(39) 22 (C20 (C22 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) P22 P22) 0 (C10 (C11 S (C11 S S)) 0))))
-Actually, from the discussion below (c.f. Marc's big number), depth 22 also adds at least two results which use slow functions
+Actually, from the discussion below (c.f. Marc's big number), depth 22 also adds at least two results which use really slow functions
 and so aren't in the present search. I.e. if I change the search to reuse slow functions, I'd expect to see:
    (#(-1) 22 (C10 (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))) ; the -1 is because it'd still take too long to compute
-   (#(-1) 22 (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))) ; which I conjecture is 5*2^128-1=1701411834604692317316873037158841057279
+   (#(-1) 22 (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))) ; which I conjecture is 5*2^127-1=850705917302346158658436518579420528639
 I conjecture that these are the first "surprisingly big" primitive recursive numbers. (I've informally checked slow functions of complexity 12 or less and these seem like the only candidates.)
 
 
@@ -87,7 +87,7 @@ We can predict that at depth 23, we'll definitely see the successors of everythi
     (on-new #(30) ((C10 S (C20 (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) S) (C10 (C11 S (C11 S S)) 0) 0)) 30 23))
 We'll also find the next Eulerian number (by applying it to 6):
    (#(120) 23 (C10 (R0 (R1 (C13 S (C13 S P31)) S) 0) (C10 (C11 S (C11 S (C11 S (C11 S (C11 S S))))) 0)))
-Presumably we're missing other things from l-slow by this point.
+Presumably we're missing additional fancy things from l-slow by this point.
 
 Claim: 100 has complexity 29 or less.
 Proof:
@@ -149,9 +149,9 @@ Or, bigger presumably, but still at complexity 12:
   (#(0 1 5 127 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 12 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0))
 So what number is this?: (evaluating the former at 4 for complexity 12+9+1=22)
   (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))
-Let's call it Marc's first big number, eh? :) I think I'll have to translate the primitive recursion into something else if I'm ever going to find out. Well, here's a way forward -- diagnose the iterations:
+Let's call it Marc's first big number, eh? :) To find out what it is, I use diagnostic versions of the primitive recursion constructions:
   (C10 (R0-diagnose (R1-diagnose (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 (C11 S (C11 S (C11 S S))) 0))
-It seems that to compute f(4) it uses A052549 a(0)=1; a(n) = 5*2^(n-1)-1, n>0. (evaluated at n+1), so I think f(4) is 5*2^128-1. The neat bit is that I (suspect) the multiplier 5 comes from f(2) and the exponent of 127 comes from f(3). I suppose I should really "read the code" and check but that seems to be the idea. So (speculating) f(5) would be 127*2^(5*2^128)-1. Yeesh. No wonder it's slow.
+It seems that to compute f(4) it uses g(n) = 5*2^(n+1)-1, n>0, so I think f(4) is g(126)=5*2^127-1. The neat bit is that I (suspect) the multiplier 5 comes from f(2) and the exponent of 127 comes from f(3). I suppose I should really "read the code" and check but that seems to be the idea. So (speculating) f(5) would be 127*2^(5*2^127-1)-1. Yeesh. No wonder it's slow.
 Interesting, so if I change the code to keep slow functions around for growing new results, I'll get some truly giant arity 0 results by depth 22. Neat. (well, they'll prob. timeout. heh)
 
 Let's check some early slows against OEIS:
