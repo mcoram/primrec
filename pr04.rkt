@@ -61,7 +61,7 @@
     (let ([completed (run-with-timeout mythunk timeout)])
       (when (not completed)
         (begin
-          (displayln (list 'evaluation-timeout s l result))
+          (displayln (list 'evaluation-timeout))
           (set! l-slow (cons (list s f l result) l-slow)) ; !side-effect on l-slow! to store slow functions
           ))
       (values result result-time completed f))))
@@ -131,7 +131,7 @@
                   (lambda (val oval) #f) ; prefer?
                   (lambda (key val) ; on-new -- !side-effect on the accumulator!
                     (begin
-                      (displayln (list 'on-new key val))
+                      (displayln (list 'on-new (val->prettyval val)))
                       (vector-set! v-accum ix (cons val (vector-ref v-accum ix)))))
                   (lambda (key val oval) void) ; on-prefer
                   )))
@@ -140,18 +140,17 @@
 
 ; Helpers to display the contents of the state
 (define (function-counts) (vector-map (lambda (x) (length (hash-keys x))) v-ht))
-(define (dump-functions) (vector-map 
-                          (lambda (lv1)
-                            (vector-map 
-                             (lambda (l1)
-                               (map 
-                                (lambda (row)
-                                  (match row 
+(define (val->prettyval row) 
+  (match row 
                                     [`{,code ,procedure ,complexity ,enum ,time-complexity ,result}
                                      `{,result ,complexity ,code ,enum ,time-complexity}]
                                     [else row]
                                     ))
-                                l1))
+(define (dump-functions) (vector-map 
+                          (lambda (lv1)
+                            (vector-map 
+                             (lambda (l1)
+                               (map val->prettyval l1))
                              (lazy-vector->vector lv1)))
                           v-lv))
 (define (dump-slow) (map (lambda (row) 
