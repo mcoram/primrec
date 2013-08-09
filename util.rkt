@@ -1,5 +1,5 @@
 #lang racket
-(provide nth index-of initialize-vector)
+(provide nth index-of initialize-vector flat-length)
 
 (define nth list-ref)
 
@@ -16,3 +16,9 @@
       (for ([ix (in-range n)])
         (vector-set! v ix (initializer ix)))
       v)))
+
+(define (flat-length x)
+  (cond 
+        [(null? x) 0]
+        [(pair? x) (+ (flat-length (car x)) (flat-length(cdr x)))]
+        [#t 1]))
