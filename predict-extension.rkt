@@ -62,7 +62,17 @@
 ; (#(6 14 26 42 62 86 114 146 182 222 266 314 366 422 482 546 614 686 762 842 926 1014 1106 1202 1302) 17 (C11 S (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S)))
 ; So why doesn't 26 enter via:
 ; (C10 (C11 (C11 S (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S)) (C11 S S)) 0)
-; Does the associativity prevent this? @@
+; Does the associativity prevent this? c.f. the #unless rules in pr04.rkt.
+; Maybe it's the inner A1 function that can't get made, i.e. this guy:
+; (C11 (C11 S (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S)) (C11 S S))
+; Yes, consider:
+; """#:unless (and (list? (first f1)) (equal? (first (first f1)) c1)) ; Force C1j constructions to right associate."""
+; In this invocation c1 takes the value 'C11 and it says you have to write instead:
+; (C11 S (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S)))
+; Ah! Oh no! But the necessary f2 isn't in our list because it's left version is. I.e. let's search for:
+;  (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S))
+;(find-by-code-string (vector-ref v-functions 1) "(C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S))")
+; Nothing. So that's it. Another bug. @@ The well intentioned right associative rule together with my "keep only observationally unique" strategy are creating leaks. Bother.
 
 (define (print-at-most num lst)
   (let ([sublst 
