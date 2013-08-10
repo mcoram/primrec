@@ -8,6 +8,8 @@
 (require racket/serialize)
 (require file/gzip)
 
+(provide main)
+
 ; Limits
 (define timeout-per-eval 5) ; only allow this many seconds for an evaluation
 (define evaluation-limits '(-1 25 5 3)) ; The value N_j in this list means to evaluate functions of arity j on the integers in the set {0..(N_j-1)}^j to test for distinct functions.
@@ -279,7 +281,7 @@
    (vector-ref v-lv arity) 
    (make-extender arity updater initial pr-induce)))
 
-(define (main) 
+(define (main . arglst) 
   (define dummy (time (lazy-vector-ref (vector-ref v-lv 0) 50))) ; may take a LONG time; will kill when bored.
   (dump-functions)
   )

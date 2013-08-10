@@ -3,6 +3,7 @@
 (require file/gunzip)
 (require "pr_primitives.rkt")
 (require "util.rkt")
+(provide main)
 
 (printf "loading... ")
 (define ldat 
@@ -100,4 +101,5 @@
         ;(print-at-most nprnt (find-s1-matches v1))
         (loop))
       (printf "Bye!\n")))
-(loop)
+
+(define (main . arglst) (loop))
