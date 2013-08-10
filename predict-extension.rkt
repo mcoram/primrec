@@ -21,10 +21,6 @@
 (apply printf `{"The total number of functions available are ~a, ~a, ~a, ~a, respectively.\n\n\n" ,@(vector->list fun-ct)})
 
 
-
-;(define l-slow1 (filter (lambda (x) (equal? (pr-arity (third x)) 1)) l-slow))
-
-;(vector-map length v-functions)
 ;(vector-ref v-functions 0)
 
 (define (vector-initial-match v1 v2)

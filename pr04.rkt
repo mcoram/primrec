@@ -14,16 +14,17 @@
 ;Note that large values mean that more functions will fail to complete before the timeout. Small values mean that distinct functions won't be noticed as distinct when they are the same on these values.
 
 ;Customize this to output as you go
-(define (on-end-extender arity depth)
-  (when (equal? arity 0)
-    (printf "Dumping\n")
-    (define outname (format "out/functions-full.~a.serial" depth))
-    (define ofile (open-output-file outname #:exists 'replace))
-    (write (serialize (list arity depth (dump-functions) (dump-slow))) ofile)
-    (close-output-port ofile)
-    (gzip outname (string-append outname ".gz"))
-    (delete-file outname)
-    ))
+(define (on-begin-extender arity depth-p1)
+  (let ([depth (- depth-p1 1)])
+    (when (equal? arity 0)
+      (printf "Dumping\n")
+      (define outname (format "out/functions-full.~a.serial" depth))
+      (define ofile (open-output-file outname #:exists 'replace))
+      (write (serialize (list arity depth (dump-functions) (dump-slow))) ofile)
+      (close-output-port ofile)
+      (gzip outname (string-append outname ".gz"))
+      (delete-file outname)
+      )))
 
 
 ;Module-level state ;;;;;;;;;;;;;;;;;;
@@ -108,8 +109,8 @@
                             (begin (hash-set! ht key val)
                                    (on-new key val))
                             (when force
-                                (begin
-                                  (on-new key val))))))))])
+                              (begin
+                                (on-new key val))))))))])
     updater))
 
 ; builds 4 updaters to handle the four entries in v-ht below
@@ -140,10 +141,10 @@
 (define (function-counts) (vector-map (lambda (x) (length (hash-keys x))) v-ht))
 (define (val->prettyval row) 
   (match row 
-                                    [`{,code ,procedure ,complexity ,enum ,time-complexity ,result}
-                                     `{,result ,complexity ,code ,enum ,time-complexity}]
-                                    [else row]
-                                    ))
+    [`{,code ,procedure ,complexity ,enum ,time-complexity ,result}
+     `{,result ,complexity ,code ,enum ,time-complexity}]
+    [else row]
+    ))
 (define (dump-functions) (vector-map 
                           (lambda (lv1)
                             (vector-map 
@@ -249,6 +250,7 @@
 (define (make-extender arity updater initial induce)
   (lambda (lvself ix)
     (displayln (list 'begin-extender arity ix 'counts (function-counts)))
+    (on-begin-extender arity ix)
     (let ([result (cond 
                     [(< ix 1) null]
                     [(equal? ix 1)
@@ -266,7 +268,6 @@
                        (reverse (vector-ref v-accum arity)) ; the accumulator is our result (reversed to put it in generative order)
                        )])])
       (displayln (list 'end---extender arity ix 'counts (function-counts)))
-      (on-end-extender arity ix)
       result
       )))
 
