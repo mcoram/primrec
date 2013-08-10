@@ -6,6 +6,7 @@
 (require "util.rkt")
 (require "run_with_timeout.rkt")
 (require racket/serialize)
+(require file/gzip)
 
 ; Limits
 (define timeout-per-eval 5) ; only allow this many seconds for an evaluation
@@ -20,7 +21,8 @@
     (define ofile (open-output-file outname #:exists 'replace))
     (write (serialize (list arity depth (dump-functions) (dump-slow))) ofile)
     (close-output-port ofile)
-    ;(gzip outname (string-append outname ".gz"))
+    (gzip outname (string-append outname ".gz"))
+    (delete-file outname)
     ))
 
 
@@ -96,20 +98,18 @@
 ; needs fix? probably. would work in the macro version. hmm.
 
 ; a moderately generic function to construct hashtable updaters with "programmable behavior"
-(define (make-updater ht ok? to-key-value-force prefer? on-new on-prefer) 
+(define (make-updater ht ok? to-key-value-force on-new) 
   (let* 
       ([updater (lambda (x y z)
                   (when (ok? x y z)
                     (let-values ([(key val force) (to-key-value-force x y z)])
                       (let ([oval (hash-ref ht key null)])
-                        (when (not (equal? key #f))
-                          (if (null? oval)
-                              (begin (hash-set! ht key val)
-                                     (on-new key val))
-                              (when (or force (prefer? val oval))
+                        (if (null? oval)
+                            (begin (hash-set! ht key val)
+                                   (on-new key val))
+                            (when force
                                 (begin
-                                  (hash-set! ht key val)
-                                  (on-prefer key val oval)))))))))])
+                                  (on-new key val))))))))])
     updater))
 
 ; builds 4 updaters to handle the four entries in v-ht below
@@ -128,12 +128,10 @@
                                        (values result
                                                (list s f l update-count runtime result)
                                                (not completed)))) ;force updates if the result didn't complete -- i.e. keep all slow functions
-                  (lambda (val oval) #f) ; prefer?
                   (lambda (key val) ; on-new -- !side-effect on the accumulator!
                     (begin
                       (displayln (list 'on-new (val->prettyval val)))
                       (vector-set! v-accum ix (cons val (vector-ref v-accum ix)))))
-                  (lambda (key val oval) void) ; on-prefer
                   )))
 
 (define v-updaters (list->vector (make-updaters v-ht v-accum evaluation-limits))) ; these will be used to update v-ht primarily but will side effect on v-accum, l-slow, update-count
@@ -258,14 +256,14 @@
                        (vector-set! v-accum arity null) ; clear the accumulator
                        (for ([x initial]) (apply updater x)) ; install the initial functions at index 1 (would need fix if they weren't all complexity 1 in pr-initial)
                        ;;(displayln (list 'current-addition1 (vector-ref v-accum arity)))
-                       (vector-ref v-accum arity) ; the accumulator is our result
+                       (reverse (vector-ref v-accum arity)) ; the accumulator is our result (reversed to put it in generative order)
                        )] 
                     [else
                      (begin
                        (vector-set! v-accum arity null) ; clear the accumulator
                        (induce ix arity updater) ;... use updater
                        ;;(displayln (list 'current-addition (vector-ref v-accum arity)))
-                       (vector-ref v-accum arity) ; the accumulator is our result
+                       (reverse (vector-ref v-accum arity)) ; the accumulator is our result (reversed to put it in generative order)
                        )])])
       (displayln (list 'end---extender arity ix 'counts (function-counts)))
       (on-end-extender arity ix)
