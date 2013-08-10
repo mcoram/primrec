@@ -8,7 +8,7 @@
 (printf "loading... ")
 (define ldat 
   (let* 
-      ([inname "out/functions-full.14"]
+      ([inname "out/functions-full.16"]
        [ifile1 (open-input-file (string-append inname ".serial.gz"))]
        [ifile (open-output-bytes)])
     (gunzip-through-ports ifile1 ifile)
@@ -30,7 +30,7 @@
 (define (find-matches v1 vl1)
   (define lst (apply append (vector->list vl1))) ; this is probably inefficient (esp. to do it repeatedly) but let's try.
   (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
-(define (find-a0-matches v1) (find-matches v1 (vector-ref v-functions 1)))
+(define (find-a0-matches v1) (find-matches v1 (vector-ref v-functions 0)))
 (define (find-a1-matches v1) (find-matches v1 (vector-ref v-functions 1)))
 (define (find-a2-matches v1) (find-matches v1 (vector-ref v-functions 2)))
 (define (find-s1-matches v1)
