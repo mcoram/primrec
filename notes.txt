@@ -55,7 +55,7 @@ Depth 21 adds: 18..25, 27, 29, 31, 40.
 
 This list is again incomplete because of the Eulerian numbers function. Applying it to 5 yields 57:
   (#(57) 21 (C10 (R0 (R1 (C13 S (C13 S P31)) S) 0) (C10 (C11 S (C11 S (C11 S (C11 S S)))) 0)))
-We're also missing the result of this slow function applied to 4:
+We're also missing the result of this slow function applied to 4: (the function is 3*2^n-n-2, c.f. http://oeis.org/A079583)
   (#(1 3 8 19 42 89 184 375 758 1525 3060 6131 12274 24561 49136 98287 196590 393197 786412 1572843 3145706 6291433 12582888 -1 -1) 11 (R0 (R1 (C13 S (C13 S P31)) S) (C10 S 0)))
 Yielding 42:
   (#(42) 21 (C10 (R0 (R1 (C13 S (C13 S P31)) S) (C10 S 0)) (C10 (C11 S (C11 S (C11 S S))) 0)))
