@@ -7,7 +7,7 @@
 (printf "loading... ")
 (define ldat 
   (let* 
-      ([inname "out/functions.19"]
+      ([inname "out/functions-full.17"]
        [ifile1 (open-input-file (string-append inname ".serial.gz"))]
        [ifile (open-output-bytes)])
     (gunzip-through-ports ifile1 ifile)
@@ -15,8 +15,8 @@
     (deserialize (read (open-input-bytes (get-output-bytes ifile))))))
 (define maxdepth (second ldat))
 (define v-functions (third ldat))
-(define l-slow (reverse (map (lambda (x) (list (third x) (second x) (first x))) (fourth ldat))))
-(define fun-ct (vector-map length v-functions))
+(define l-slow (reverse (fourth ldat)))
+(define fun-ct (vector-map (lambda (v1) (apply + (vector->list (vector-map length v1)))) v-functions))
 (printf "done.\nFunctions of arity 0,1,2,3 respectively are available to depth ~a,~a,~a,~a.\n" maxdepth (- maxdepth 2) (- maxdepth 3) (- maxdepth 4))
 (apply printf `{"The total number of functions available are ~a, ~a, ~a, ~a, respectively.\n\n\n" ,@(vector->list fun-ct)})
 
@@ -37,12 +37,11 @@
 (define (find-a0-matches v1)
   (define lst (vector-ref v-functions 0))
   (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
-(define (find-a1-matches v1)
-  (define lst (vector-ref v-functions 1))
+(define (find-matches v1 vl1)
+  (define lst (apply append (vector->list vl1))) ; this is probably inefficient (esp. to do it repeatedly) but let's try.
   (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
-(define (find-a2-matches v1)
-  (define lst (vector-ref v-functions 2))
-  (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
+(define (find-a1-matches v1) (find-matches v1 (vector-ref v-functions 1)))
+(define (find-a2-matches v1) (find-matches v1 (vector-ref v-functions 2)))
 (define (find-s1-matches v1)
   (define lst l-slow) ; @@ should be l-slow1
   (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
@@ -107,8 +106,8 @@
         (print-at-most nprnt (find-a1-matches v1))
         (printf "\nArity 2 matches:\n")
         (print-at-most nprnt (find-a2-matches v1))
-        (printf "\nSlow-to-compute matches:\n")
-        (print-at-most nprnt (find-s1-matches v1))
+        ;(printf "\nSlow-to-compute matches:\n")
+        ;(print-at-most nprnt (find-s1-matches v1))
         (loop))
       (printf "Bye!\n")))
 (loop)
