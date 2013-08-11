@@ -23,6 +23,12 @@
 
 
 ;(vector-ref v-functions 0)
+;(apply append (vector->list (vector-ref v-functions 0)))
+
+(define a0l
+  (apply append (vector->list (vector-ref v-functions 0))))
+(map (lambda (x) (first x))
+
 
 (define (vector-initial-match v1 v2)
   (define l (min (vector-length v1) (vector-length v2)))
@@ -43,6 +49,7 @@
     (filter (lambda (x) 
               (regexp-match r1 (format "~a" (third x)))) lst)))
 ;e.g. to search for the body of 25 being used... (trying to figure out why isn't 26 found as a C11 S version of 25? If my associativity rule is screwing things up, I need to know.)
+; edit: there was a bug caused by the associativity rules... it's fixed in this branch.
 ; (#(25) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S)) 0))
 ;(find-by-code-string (vector-ref v-functions 0) "(C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S)")
 ;(find-by-code-string (vector-ref v-functions 1) "(C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S)")
@@ -62,7 +69,7 @@
 ; Ah! Oh no! But the necessary f2 isn't in our list because it's left version is. I.e. let's search for:
 ;  (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S))
 ;(find-by-code-string (vector-ref v-functions 1) "(C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S))")
-; Nothing. So that's it. Another bug. @@ The well intentioned right associative rule together with my "keep only observationally unique" strategy are creating leaks. Bother.
+; Nothing. So that's it. Another bug. The well intentioned right associative rule together with my "keep only observationally unique" strategy are creating leaks. Bother.
 
 (define (print-at-most num lst)
   (let ([sublst 
