@@ -25,10 +25,10 @@ system for writing the natural numbers and functions of them, so
 systematically exploring the kinds of functions that are simple under
 that system seems important.
 
-So far I have discovered, for example, that 31=2^5-1 is simpler than
-26 in the sense that I can write a primitive recursive expression for
-31 that involves only 21 symbols, but 26 requires more. 27, on the
-other hand, is the same complexity as 31. I have also "discovered" a lot of sequences of
+So far I have discovered, for example, that 15 is simpler than
+13 and 14 in the sense that I can write a primitive recursive expression for
+15 that involves only 17 symbols, but 13 and 14 require 18 and 19 respectively.
+I have also "discovered" a lot of sequences of
 integers that appear (with proper histories and significance) in the Online
 Encyclopedia of Integer Sequences and some that don't, but maybe
 should. (See [notes.txt](https://github.com/mcoram/primrec/blob/master/notes.txt)
