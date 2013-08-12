@@ -44,6 +44,10 @@ it builds functions systematically, from lowest complexity on up, and as it goes
 the functions are observably distinct. Only distinct functions (or functions that are too computationally complex to evaluate before the timeout) are retained to be reused in the generation of
 subsequent, more complicated functions.
 
+Working Notes
+-------------
+You can browse my notes about what I've discovered so far in the file [notes.txt](https://github.com/mcoram/primrec/blob/master/notes.txt). For example, 15 is simpler than 13 and 14, and 4083 can be expressed using only 20 symbols; but it looks like much smaller numbers like 25 cannot (I can confirm that once the next results are in). Also many interesting integer sequences can be found among the simple primitive recursive functions of arity 1-3 that it has explored.
+
 Limitations
 -----------
 
