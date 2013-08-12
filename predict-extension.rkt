@@ -8,7 +8,7 @@
 (printf "loading... ")
 (define ldat 
   (let* 
-      ([inname "out/functions-full.18"]
+      ([inname "out/functions-full.19"]
        [ifile1 (open-input-file (string-append inname ".serial.gz"))]
        [ifile (open-output-bytes)])
     (gunzip-through-ports ifile1 ifile)
@@ -27,7 +27,22 @@
 
 (define a0l
   (apply append (vector->list (vector-ref v-functions 0))))
-(map (lambda (x) (first x))
+
+(define (complexity-cut a0l cut) (filter (lambda (x) (<= (second x) cut)) a0l))
+(define (naturals-cut cut) (sort (map (lambda (x) (vector-ref (first x) 0)) (complexity-cut a0l cut)) <))
+(define (dump-level-sets depth) (for ([i (in-range (+ 1 depth))]) (printf "~a\t~a\n" i (format "~a" (naturals-cut i)))))
+(require racket/set)
+(define (dump-natural-ordering depth) 
+  (define last (list->set null))
+  (define current null)
+  (define temp null)
+  (for ([i (in-range 1 (+ 1 depth))]) 
+    (set! current (list->set (naturals-cut i)))
+    (set! temp (sort (set->list (set-subtract current last)) <))
+    (when (> (length temp) 0) (printf "~a \t <\n" temp))
+    (set! last current)))
+; (dump-natural-ordering maxdepth)
+
 
 
 (define (vector-initial-match v1 v2)
