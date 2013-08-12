@@ -58,5 +58,6 @@ To determine if functions are observationally distinct, it has to evaluate them.
 
 A limitation of this strategy is that functions could be identical on these sets but differ subsequently. In this case,
 the algorithm only keeps the one it encountered first. The second limitation is that you have to evaluate at all.
-I allow 5 seconds for the computation to complete; those that don't complete are called "slow" and are recorded in l-slow,
-but not used in further exploration.
+I allow 5 seconds for the computation to complete; those that don't complete are called "slow" and are recorded in l-slow.
+They are kept for further exploration.
+

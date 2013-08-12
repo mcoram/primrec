@@ -3,11 +3,12 @@
 (require file/gunzip)
 (require "pr_primitives.rkt")
 (require "util.rkt")
+(provide main)
 
 (printf "loading... ")
 (define ldat 
   (let* 
-      ([inname "out/functions.19"]
+      ([inname "out/functions-full.19"]
        [ifile1 (open-input-file (string-append inname ".serial.gz"))]
        [ifile (open-output-bytes)])
     (gunzip-through-ports ifile1 ifile)
@@ -15,34 +16,44 @@
     (deserialize (read (open-input-bytes (get-output-bytes ifile))))))
 (define maxdepth (second ldat))
 (define v-functions (third ldat))
-(define l-slow (reverse (map (lambda (x) (list (third x) (second x) (first x))) (fourth ldat))))
-(define fun-ct (vector-map length v-functions))
+(define l-slow (reverse (fourth ldat)))
+(define fun-ct (vector-map (lambda (v1) (apply + (vector->list (vector-map length v1)))) v-functions))
 (printf "done.\nFunctions of arity 0,1,2,3 respectively are available to depth ~a,~a,~a,~a.\n" maxdepth (- maxdepth 2) (- maxdepth 3) (- maxdepth 4))
 (apply printf `{"The total number of functions available are ~a, ~a, ~a, ~a, respectively.\n\n\n" ,@(vector->list fun-ct)})
 
 
-
-;(define l-slow1 (filter (lambda (x) (equal? (pr-arity (third x)) 1)) l-slow))
-
-;(vector-map length v-functions)
 ;(vector-ref v-functions 0)
+;(apply append (vector->list (vector-ref v-functions 0)))
+
+(define a0l
+  (apply append (vector->list (vector-ref v-functions 0))))
+
+(define (complexity-cut a0l cut) (filter (lambda (x) (<= (second x) cut)) a0l))
+(define (naturals-cut cut) (sort (map (lambda (x) (vector-ref (first x) 0)) (complexity-cut a0l cut)) <))
+(define (dump-level-sets depth) (for ([i (in-range (+ 1 depth))]) (printf "~a\t~a\n" i (format "~a" (naturals-cut i)))))
+(require racket/set)
+(define (dump-natural-ordering depth) 
+  (define last (list->set null))
+  (define current null)
+  (define temp null)
+  (for ([i (in-range 1 (+ 1 depth))]) 
+    (set! current (list->set (naturals-cut i)))
+    (set! temp (sort (set->list (set-subtract current last)) <))
+    (when (> (length temp) 0) (printf "~a \t <\n" temp))
+    (set! last current)))
+; (dump-natural-ordering maxdepth)
+
+
 
 (define (vector-initial-match v1 v2)
   (define l (min (vector-length v1) (vector-length v2)))
   (for/and ([ix (in-range l)]) (equal? (vector-ref v1 ix) (vector-ref v2 ix))))
-(define (find-a1-match v1)
-  (define lst (vector-ref v-functions 1))
-  (for/or ([x lst])
-    (if (vector-initial-match v1 (first x)) x #f)))
-(define (find-a0-matches v1)
-  (define lst (vector-ref v-functions 0))
+(define (find-matches v1 vl1)
+  (define lst (apply append (vector->list vl1))) ; this is probably inefficient (esp. to do it repeatedly) but let's try.
   (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
-(define (find-a1-matches v1)
-  (define lst (vector-ref v-functions 1))
-  (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
-(define (find-a2-matches v1)
-  (define lst (vector-ref v-functions 2))
-  (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
+(define (find-a0-matches v1) (find-matches v1 (vector-ref v-functions 0)))
+(define (find-a1-matches v1) (find-matches v1 (vector-ref v-functions 1)))
+(define (find-a2-matches v1) (find-matches v1 (vector-ref v-functions 2)))
 (define (find-s1-matches v1)
   (define lst l-slow) ; @@ should be l-slow1
   (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
@@ -53,6 +64,7 @@
     (filter (lambda (x) 
               (regexp-match r1 (format "~a" (third x)))) lst)))
 ;e.g. to search for the body of 25 being used... (trying to figure out why isn't 26 found as a C11 S version of 25? If my associativity rule is screwing things up, I need to know.)
+; edit: there was a bug caused by the associativity rules... it's fixed in this branch.
 ; (#(25) 21 (C10 (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S)) 0))
 ;(find-by-code-string (vector-ref v-functions 0) "(C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S)")
 ;(find-by-code-string (vector-ref v-functions 1) "(C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S)")
@@ -72,7 +84,7 @@
 ; Ah! Oh no! But the necessary f2 isn't in our list because it's left version is. I.e. let's search for:
 ;  (C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S))
 ;(find-by-code-string (vector-ref v-functions 1) "(C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S))")
-; Nothing. So that's it. Another bug. @@ The well intentioned right associative rule together with my "keep only observationally unique" strategy are creating leaks. Bother.
+; Nothing. So that's it. Another bug. The well intentioned right associative rule together with my "keep only observationally unique" strategy are creating leaks. Bother.
 
 (define (print-at-most num lst)
   (let ([sublst 
@@ -107,8 +119,9 @@
         (print-at-most nprnt (find-a1-matches v1))
         (printf "\nArity 2 matches:\n")
         (print-at-most nprnt (find-a2-matches v1))
-        (printf "\nSlow-to-compute matches:\n")
-        (print-at-most nprnt (find-s1-matches v1))
+        ;(printf "\nSlow-to-compute matches:\n")
+        ;(print-at-most nprnt (find-s1-matches v1))
         (loop))
       (printf "Bye!\n")))
-(loop)
+
+(define (main . arglst) (loop))
