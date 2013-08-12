@@ -1,6 +1,4 @@
-Observation: 7 is the first number that has a representation simpler than its direct representation of (C10 (C11 S (C11 S (C11 S (C11 S (C11 S (C11 S S)))))) 0), which has complexity 15.
-Instead, the complexity of 7 is 14. Confer the following results which list the results as (#(<<result of evaluation>>) <<complexity>> <<primitive recursive code>>)
-
+The shortest representation of the non-negative integers from 0..6 is the literal one in which S is applied repeatedly to 0. We say these representations are the shortest because if you count the number of symbols used to construct them this way, there is no other tree of primitive recursion primitives with fewer leaves that computes the same results. In other words, you have to use at least as many symbols as the literal construction uses; we call this number the complexity and write it second in each of the lists below.
   (#(0) 1 0 1 0)
   (#(1) 3 (C10 S 0) 4 0)
   (#(2) 5 (C10 S (C10 S 0)) 10 0)
@@ -8,20 +6,56 @@ Instead, the complexity of 7 is 14. Confer the following results which list the 
   (#(4) 9 (C10 S (C10 S (C10 S (C10 S 0)))) 287 0)
   (#(5) 11 (C10 S (C10 S (C10 S (C10 S (C10 S 0))))) 1469 0)
   (#(6) 13 (C10 S (C10 S (C10 S (C10 S (C10 S (C10 S 0)))))) 7394 0)
+The results above are written in the form (<<result of evaluation>> <<complexity>> <<primitive recursive code>> <<enumeration depth>> <<computation time in milliseconds>>).
+
+Observation: 7 is the first number that has a representation simpler than its direct representation of (C10 (C11 S (C11 S (C11 S (C11 S (C11 S (C11 S S)))))) 0), which has complexity 15.
+Instead, the complexity of 7 is 14. The representation is (C10 (C21 (R1 (C13 S P31) S) S S) (C10 S (C10 S 0))) as indicated below:
 
   (#(7) 14 (C10 (C21 (R1 (C13 S P31) S) S S) (C10 S (C10 S 0))) 16546 0)
 
+This feat is achieved by applying the the arity 1 function f:n->2*n+3 to 2:
+  (#(3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35 37 39 41 43 45 47 49 51) 8 (C21 (R1 (C13 S P31) S) S S) 909 0)
+[The results of evaluation for arity 1 functions are taken to be its evaluation on the inputs from 0..24]
+where f is based on a C21 composition of the arity 2 function g:i,j->i+j+1
+  (#(1 2 3 4 5 2 3 4 5 6 3 4 5 6 7 4 5 6 7 8 5 6 7 8 9) 5 (R1 (C13 S P31) S) 246 0)
+[The results of evaluation for arity 2 functions are taken to be its evaluation on the inputs from 0..4 crossed with 0..4]
+with the arity 1 functions S and S.
+
+For comparison, ordinary addition h:i,j->i+j is at complexity 5, just like g, but uses P11 (the arity 1 identity) instead of S:
+  (#(0 1 2 3 4 1 2 3 4 5 2 3 4 5 6 3 4 5 6 7 4 5 6 7 8) 5 (R1 (C13 S P31) P11) 247 0)
+Two part multiplication has complexity 12 (though some variation on it might be simpler):
+  (#(0 0 0 0 0 0 1 2 3 4 0 2 4 6 8 0 3 6 9 12 0 4 8 12 16) 12 (R1 (C23 (R1 (C13 S P31) P11) P31 P33) (R0 P21 0)) 73096 0)
+
+At complexity 16 we get these non-negative integers:
   (#(8) 16 (C10 S (C10 (C21 (R1 (C13 S P31) S) S S) (C10 S (C10 S 0)))) 83122 0)
   (#(9) 16 (C10 (C21 (R1 (C13 S P31) S) S S) (C10 S (C10 S (C10 S 0)))) 83135 0)
   (#(10) 16 (C10 (C21 (R1 (C13 S (C13 S P31)) S) S S) (C10 S (C10 S 0))) 83180 0)
 
+Eight is obtained by adding 1 to 7, written as above. Nine uses the same f as above, but applies it to 3.
+
+Ten uses f2:n->3*n+4
+  (#(4 7 10 13 16 19 22 25 28 31 34 37 40 43 46 49 52 55 58 61 64 67 70 73 76) 10 (C21 (R1 (C13 S (C13 S P31)) S) S S) 4275 0)
+Where f2 is built using the arity 2 function g2:i,j->2*i+j+1 using C21 with S and S again:
+  (#(1 2 3 4 5 3 4 5 6 7 5 6 7 8 9 7 8 9 10 11 9 10 11 12 13) 7 (R1 (C13 S (C13 S P31)) S) 1300 0)
+
+
 15 is the first natural number that has a simpler representation as a primitive recursive function than some numbers smaller than itself have (namely 13 and 14.)
-==================================================================================================================================================================================
+=================================================================================================================================================================
 
 
   (#(11) 17 (C10 (R0 (R1 (C13 S (C13 S P31)) S) 0) (C10 S (C10 S (C10 S 0)))) 196080 0)
   (#(15) 17 (C10 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) S S) (C10 S 0)) 196621 0)
   (#(12) 17 (C10 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) S S) (C10 S 0)) 196635 0)
+
+15 is computed by applying the arity 1 function f to 1 where f is the function that maps n->(n+3)*2^(n+1)-1 (c.f. http://oeis.org/A099035).
+In the notation of pr04.rkt this is:
+  (#(5 15 39 95 223 511 1151 2559 5631 12287 26623 57343 122879 262143 557055 1179647 2490367 5242879 11010047 23068671 48234495 100663295 -1 -1 -1) ; which summarizes the output of the function evaluated on 0..24
+   13 ; the complexity
+   (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) S S) ; the code
+   44519 ; the enumeration index
+   -1) ; the run-time (-1 indicates timeout >5000).
+
+13 and 14 aren't much more complex, though, we obtain them at complexity 18 and 19.
 
   (#(13) 18 (C10 (C21 (R1 (C13 S (C13 S P31)) S) S S) (C10 S (C10 S (C10 S 0)))) 417210 0)
   (#(21) 18 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) S S) (C10 S 0)) 418469 0)
@@ -40,6 +74,14 @@ Instead, the complexity of 7 is 14. Confer the following results which list the 
   (#(22) 19 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) S P11) (C10 S 0)) 971157 0)
   (#(27) 19 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S) S S) (C10 S 0)) 971188 0))
 
+Where 26, for example, applies the following arity 1 function to 4:
+  (#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 -1) 9 (R0 (R1 (C13 S (C13 S P31)) S) 0))
+We can recognize this as the sequence of Eulerian numbers for exactly m=1 ascents. 
+[C.f.: http://oeis.org/A000295 which has an extra 0 at the beginning but is otherwise identical. See also: http://en.wikipedia.org/wiki/Eulerian_number
+The Eulerian number A(n,m) is the number of permutations of n items that have exactly m "ascents" E.g. the value of our function at 3 is 4 because the permutations of 1..3 with one ascent are (1 3 2), (2 1 3), (2 3 1), and (3 1 2) [ (1 2 3) and (3 2 1) ascend 2 and 0 times, instead]]
+
+
+Here is a summary of the available non-negative integers by complexity
 1    (0)
 2    (0)
 3    (0 1)
@@ -60,8 +102,8 @@ Instead, the complexity of 7 is 14. Confer the following results which list the 
 18   (0 1 2 3 4 5 6 7 8 9 10 11 12 13 15 21) ; 15 and 21 beat 14 and 16..20
 19   (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 21 22 23 24 26 27 31 32 39) ; these beat 20 25 28..30 33..38
 
-We derive the following initial part of the ordering of the non-negative natural numbers according to their complexity as primitive recursive expressions
-=========================================================================================================================================================
+We derive the following initial part of the ordering of the non-negative integers according to their complexity as primitive recursive expressions
+==================================================================================================================================================
 
 (0)         <
 (1)         <
@@ -72,12 +114,13 @@ We derive the following initial part of the ordering of the non-negative natural
 (6) 	    <
 (7) 	    <
 (8 9 10)    <
-(11 12 15)  <
-(13 21)     <
-(14 16 17 18 19 22 23 24 26 27 31 32 39) < 
+(11 12 15)  < ; so 15 is simpler than 13 and 14
+(13 21)     < ; so 21 is simpler than 14 and 16..20
+(14 16 17 18 19 22 23 24 26 27 31 32 39) <  ; so 22, 23, 24, 26, 27, 31, 32, and 39 are simpler than 20, 25, 28..30, and 33..38
 (20 28 29 48 54 55 66 127 231 1540 4083) < ...
 
-[The last row is based on the following and could be incomplete]
+[The last row is based on the following and could be incomplete (we'll know when the level 20 results finish);
+ if it's complete, it appears that 4083 is simpler than 25, for example.]
 
 (on-new (#(127) 20 (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 S (C10 S (C10 S 0)))) 2150659 0))
 (on-new (#(48) 20 (C10 (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0) (C10 S (C10 S (C10 S 0)))) 2150666 0))
@@ -91,8 +134,16 @@ We derive the following initial part of the ordering of the non-negative natural
 (on-new (#(20) 20 (C10 (C21 (R1 (C13 (R0 (C12 S (R1 (C13 S P31) S)) 0) P31) S) S P11) (C10 S 0)) 2156850 0))
 (on-new (#(4083) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S) S S) (C10 S 0)) 2156858 0))
 
+Where 4083, for example is based on the arity 1 function f with the unknown fast-growing function below:
+  (#(4 4083 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S) S S) 484359 -1)
+
 
 The revised search strategy invalidates some of the results below:
+==================================================================
+
+The results below are based on a search strategy that used a right associativity rule that conflicted with "unique function" technique I use to prevent an effectively exhaustive search. Additionally, the approach taken was to discard functions that were slow to compute (for the purpose of building further functions). To explore results at this stage of the work use the branch landmark-22-buggy.
+
+The many functions identified on OEIS and otherwise are still valid, and the conjecture about "Marc's big number" might still be about right, though other large ones are probably missed and 4083 at complexity 20 is pretty impressive.
 
 Observation: 7 is the first number that has a representation simpler than its direct representation of (C10 (C11 S (C11 S (C11 S (C11 S (C11 S (C11 S S)))))) 0), which has complexity 15.
 Instead, the complexity of 7 is 14. Confer the following results which list the results as (#(<<result of evaluation>>) <<complexity>> <<primitive recursive code>>)

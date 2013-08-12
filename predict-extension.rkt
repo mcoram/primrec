@@ -86,6 +86,15 @@
 ;(find-by-code-string (vector-ref v-functions 1) "(C11 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P33 P31) S) S S) (C11 S S))")
 ; Nothing. So that's it. Another bug. The well intentioned right associative rule together with my "keep only observationally unique" strategy are creating leaks. Bother.
 
+; Find our new first generating function for 15.
+;(find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(C21 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) S S)")
+; Find our new first generating function for 7. 
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(C21 (R1 (C13 S P31) S) S S)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2))) "(R1 (C13 S P31) S)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2)))"(R1 (C13 S (C13 S P31)) S)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(C21 (R1 (C13 S (C13 S P31)) S) S S)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S) S S)")) ;for 4083
+
 (define (print-at-most num lst)
   (let ([sublst 
          (if (> (length lst) num) (take lst num) lst)])
