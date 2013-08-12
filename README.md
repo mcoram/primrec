@@ -24,9 +24,7 @@ The predict-extension.rkt code does this using the results of running pr04.rkt: 
 which currently documents all arity 0 functions up to depth 19, arity 1 functions to depth 2 less,
 arity 2 functions to depth 3 less, and arity 3 functions to depth 4 less, but if you run pr04.rkt yourself
 it will essentially run forever trying to get ever deeper (ok, it'll terminate if it ever gets to 50).
-By depth 19 it has discovered 17 functions of arity 0 (0..16 actually), 17867 functions of arity 1, 52342 functions of arity 2, and 14322 functions of arity 3.
-By depth 21 the counts are up to 30, 71330, 223609, and 53828 respectively.
-So far, the code only considers primitive recursive functions of up-to arity 3.
+By depth 19 it has discovered 29 functions of arity 0 (namely: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 21 22 23 24 26 27 31 32 39), 31411 functions of arity 1, 53975 functions of arity 2, and 14376 functions of arity 3. The code only considers primitive recursive functions of up-to arity 3.
 
 The basic primitive recursive functions are (see [pr_primitives.rkt](https://github.com/mcoram/primrec/blob/master/pr_primitives.rkt) for details):
 *  0 of arity 0
@@ -43,7 +41,7 @@ which is represented using:
 
 pr04.rkt tries to be clever about how it explores the space of primitive recursive functions. Specifically,
 it builds functions systematically, from lowest complexity on up, and as it goes it keeps track of whether
-the functions are observably distinct. Only distinct functions are retained to be reused in the generation of
+the functions are observably distinct. Only distinct functions (or functions that are too computationally complex to evaluate before the timeout) are retained to be reused in the generation of
 subsequent, more complicated functions.
 
 Limitations
