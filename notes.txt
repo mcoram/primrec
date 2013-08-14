@@ -96,9 +96,10 @@ Which uses f3:i-> i*(i+1)/2
 
 Where 26, for example, applies the following arity 1 function to 4:
   (#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) 9 (R0 (R1 (C13 S (C13 S P31)) S) 0) 2329 2504)
-We can recognize this as the sequence of Eulerian numbers for exactly m=1 ascents. 
-[C.f.: http://oeis.org/A000295 which has an extra 0 at the beginning but is otherwise identical. See also: http://en.wikipedia.org/wiki/Eulerian_number
-The Eulerian number A(n,m) is the number of permutations of n items that have exactly m "ascents" E.g. the value of our function at 3 is 4 because the permutations of 1..3 with one ascent are (1 3 2), (2 1 3), (2 3 1), and (3 1 2) [ (1 2 3) and (3 2 1) ascend 2 and 0 times, instead]]
+We can recognize this as the sequence of Eulerian numbers for permutations of n=(i+1) things with exactly m=1 ascents. The regular sequence (i.e. for n=i and m=1) has the same complexity:
+  (#(0 0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191) 9 (R0 (R1 (C13 S (C13 S P31)) P11) 0) 2330 1258)
+[C.f.: http://oeis.org/A000295. See also: http://en.wikipedia.org/wiki/Eulerian_number
+The Eulerian number A(n,m) is the number of permutations of n items that have exactly m "ascents" E.g. the value of our function at 2 is 4 because the permutations of 3=(2+1) things with one ascent are (1 3 2), (2 1 3), (2 3 1), and (3 1 2) [ (1 2 3) and (3 2 1) ascend 2 and 0 times, instead]]
 
 39 is computed using the same f used by 15, but applying it to 2.
 
