@@ -103,9 +103,11 @@
 ;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2))) "(R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S)")) ; for 21
 ;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(R0 (R1 (C13 S P31) S) 0)"))
 ;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) S S)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2))) "(R1 (C13 S (C13 S P31)) S)"))
+
 
 (define (filter-slow lst cut) (filter (lambda (x) (or (>= (fifth x) cut) (equal? (fifth x) -1))) lst))
-(take (filter-slow a1l 1) 100)
+;(take (filter-slow a1l 1) 100)
 
 (define (print-at-most num lst)
   (let ([sublst 
