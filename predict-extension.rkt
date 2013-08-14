@@ -27,6 +27,8 @@
 
 (define a0l
   (apply append (vector->list (vector-ref v-functions 0))))
+(define a1l
+  (apply append (vector->list (vector-ref v-functions 1))))
 
 (define (complexity-cut a0l cut) (filter (lambda (x) (<= (second x) cut)) a0l))
 (define (naturals-cut cut) (sort (map (lambda (x) (vector-ref (first x) 0)) (complexity-cut a0l cut)) <))
@@ -94,6 +96,16 @@
 ;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2)))"(R1 (C13 S (C13 S P31)) S)"))
 ;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(C21 (R1 (C13 S (C13 S P31)) S) S S)"))
 ;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S) S S)")) ;for 4083
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(R0 (R1 (C13 S (C13 S P31)) S) 0)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2))) "(R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2))) "(R1 (C13 S P31) S)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2))) "(R1 (C23 (R1 (C13 S P31) S) P31 P31) S)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 2))) "(R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S)")) ; for 21
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(R0 (R1 (C13 S P31) S) 0)"))
+;(first (find-by-code-string (apply append (vector->list (vector-ref v-functions 1))) "(C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) S S)"))
+
+(define (filter-slow lst cut) (filter (lambda (x) (or (>= (fifth x) cut) (equal? (fifth x) -1))) lst))
+(take (filter-slow a1l 1) 100)
 
 (define (print-at-most num lst)
   (let ([sublst 
