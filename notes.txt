@@ -132,6 +132,7 @@ Here is a summary of the available non-negative integers by complexity
 17   (0 1 2 3 4 5 6 7 8 9 10 11 12 15) ; 15 beats 13 and 14
 18   (0 1 2 3 4 5 6 7 8 9 10 11 12 13 15 21) ; 15 and 21 beat 14 and 16..20
 19   (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 21 22 23 24 26 27 31 32 39) ; these beat 20 25 28..30 33..38
+20   (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 26 27 28 29 31 32 39 48 54 55 66 127 231 1540 4083) ; so 25, 30,33..38,40..47,49..53, etc. are all more complex than 4083
 
 We derive the following initial part of the ordering of the non-negative integers according to their complexity as primitive recursive expressions
 ==================================================================================================================================================
@@ -148,23 +149,22 @@ We derive the following initial part of the ordering of the non-negative integer
 (11 12 15)  < ; so 15 is simpler than 13 and 14
 (13 21)     < ; so 21 is simpler than 14 and 16..20
 (14 16 17 18 19 22 23 24 26 27 31 32 39) <  ; so 22, 23, 24, 26, 27, 31, 32, and 39 are simpler than 20, 25, 28..30, and 33..38
-(20 28 29 48 54 55 66 127 231 1540 4083) < ...
+(20 28 29 48 54 55 66 127 231 1540 4083) <
 
-[The last row is based on the following and could be incomplete (we'll know when the level 20 results finish);
- if it's complete, it appears that 4083 is simpler than 25, for example.]
 
-(on-new (#(127) 20 (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 S (C10 S (C10 S 0)))) 2150659 0))
-(on-new (#(48) 20 (C10 (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0) (C10 S (C10 S (C10 S 0)))) 2150666 0))
-(on-new (#(1540) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) S S) (C10 S (C10 S 0))) 2151588 0)) ; similar to 21
-(on-new (#(231) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) S P11) (C10 S (C10 S 0))) 2151589 0))
-(on-new (#(55) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) P11 S) (C10 S (C10 S 0))) 2151590 0))
-(on-new (#(29) 20 (C10 (C21 (R1 (C13 S (C13 (R0 (R1 (C13 S P31) S) 0) P31)) S) S S) (C10 S 0)) 2156820 0))
-(on-new (#(66) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) (C13 S P31)) S) S S) (C10 S 0)) 2156841 0))
-(on-new (#(28) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) (C13 S P31)) S) S P11) (C10 S 0)) 2156842 0))
-(on-new (#(54) 20 (C10 (C21 (R1 (C13 (R0 (C12 S (R1 (C13 S P31) S)) 0) P31) S) S S) (C10 S 0)) 2156849 0))
-(on-new (#(20) 20 (C10 (C21 (R1 (C13 (R0 (C12 S (R1 (C13 S P31) S)) 0) P31) S) S P11) (C10 S 0)) 2156850 0))
-(on-new (#(4083) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S) S S) (C10 S 0)) 2156858 0))
+  (#(127) 20 (C10 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) (C10 S (C10 S (C10 S 0)))) 2150659 0)
+  (#(48) 20 (C10 (R0 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) 0) (C10 S (C10 S (C10 S 0)))) 2150666 0)
+  (#(1540) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) S S) (C10 S (C10 S 0))) 2151588 0)
+  (#(231) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) S P11) (C10 S (C10 S 0))) 2151589 0)
+  (#(55) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) P31) S) P11 S) (C10 S (C10 S 0))) 2151590 0)
+  (#(29) 20 (C10 (C21 (R1 (C13 S (C13 (R0 (R1 (C13 S P31) S) 0) P31)) S) S S) (C10 S 0)) 2156820 0)
+  (#(66) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) (C13 S P31)) S) S S) (C10 S 0)) 2156841 0)
+  (#(28) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P31) S) 0) (C13 S P31)) S) S P11) (C10 S 0)) 2156842 0)
+  (#(54) 20 (C10 (C21 (R1 (C13 (R0 (C12 S (R1 (C13 S P31) S)) 0) P31) S) S S) (C10 S 0)) 2156849 0)
+  (#(20) 20 (C10 (C21 (R1 (C13 (R0 (C12 S (R1 (C13 S P31) S)) 0) P31) S) S P11) (C10 S 0)) 2156850 0)
+  (#(4083) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S) S S) (C10 S 0)) 2156858 0))
 
+So 4083 is simpler than 25, for example. 4083 is the 40th simplest natural number.
 Where 4083, for example is based on the arity 1 function q with the unknown fast-growing function below applied to 1:
   (#(4 4083 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S) S S) 484359 -1)
 To understand this function, notice that it's using the Eulerian sequence with 1 ascent as used to construct 26, let's call this f:
@@ -185,6 +185,45 @@ So we can compute q(2), which would have complexity only 22, as:
 
 127 uses:
   (#(0 1 5 127 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 12 (R0 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) 0) 23232 -1)
+
+1540 uses the same function as 21 evaluated at 2.
+
+231 is very similar but by changing an S into a P11 goes one less deep into the second argument of 21's g2.
+
+Here's what complexity 21 brings (preliminary):
+
+(on-new (#(40) 21 (C10 S (C10 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) S S) (C10 S (C10 S 0)))) 4810719 0))
+(on-new (#(33) 21 (C10 S (C10 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) S S) (C10 S (C10 S 0)))) 4810722 0))
+(on-new (#(25) 21 (C10 S (C10 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) S P11) (C10 S (C10 S 0)))) 4810723 0))
+(on-new (#(57) 21 (C10 (R0 (R1 (C13 S (C13 S P31)) S) 0) (C10 S (C10 S (C10 S (C10 S (C10 S 0)))))) 4810825 0))
+(on-new (#(42) 21 (C10 (R0 (R1 (C13 S (C13 S P31)) S) (C10 S 0)) (C10 S (C10 S (C10 S (C10 S 0))))) 4810941 0))
+(on-new (#(41) 21 (C10 (R0 (C12 S (R1 (C13 S (C13 S P31)) S)) 0) (C10 S (C10 S (C10 S (C10 S 0))))) 4810962 0))
+(on-new (#(58) 21 (C10 (R0 (R1 (C13 S (C13 S (C13 S P31))) S) 0) (C10 S (C10 S (C10 S (C10 S 0))))) 4811002 0))
+(on-new (#(95) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) S S) (C10 S (C10 S (C10 S 0)))) 4811366 0))
+(on-new (#(79) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) S P11) (C10 S (C10 S (C10 S 0)))) 4811367 0))
+(on-new (#(47) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P31) S) P11 S) (C10 S (C10 S (C10 S 0)))) 4811368 0))
+(on-new (#(63) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P31) S) P31 P31) P11) S P11) (C10 S (C10 S (C10 S 0)))) 4811371 0))
+(on-new (#(80) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) S S) (C10 S (C10 S (C10 S 0)))) 4811380 0))
+(on-new (#(64) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) S) S P11) (C10 S (C10 S (C10 S 0)))) 4811381 0))
+(on-new (#(45) 21 (C10 (R0 (R1 (C13 S (C13 S (C13 S P31))) S) (C10 S 0)) (C10 S (C10 S (C10 S 0)))) 4811441 0))
+(on-new (#(46) 21 (C10 (C21 (R1 (C13 S (C23 (R1 (C13 S P31) S) P31 P31)) S) S S) (C10 S (C10 S 0))) 4813307 0))
+(on-new (#(38) 21 (C10 (C21 (R1 (C13 S (C23 (R1 (C13 S P31) S) P31 P31)) S) S P11) (C10 S (C10 S 0))) 4813308 0))
+(on-new (#(30) 21 (C10 (C21 (R1 (C13 S (C23 (R1 (C13 S P31) S) P31 P31)) P11) S P11) (C10 S (C10 S 0))) 4813312 0))
+(on-new (#(53) 21 (C10 (C21 (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) S) S S) (C10 S (C10 S 0))) 4813338 0))
+(on-new (#(37) 21 (C10 (C21 (R1 (C13 (C21 (R1 (C13 S P31) S) S S) P31) P11) S P11) (C10 S (C10 S 0))) 4813343 0))
+(on-new (#(121) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) S S) (C10 S (C10 S 0))) 4813366 0))
+(on-new (#(94) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) S) S P11) (C10 S (C10 S 0))) 4813367 0))
+(on-new (#(67) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P31) P11) S P11) (C10 S (C10 S 0))) 4813371 0))
+(on-new (#(43) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P32) S) S S) (C10 S (C10 S 0))) 4813374 0))
+(on-new (#(35) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P32) S) S P11) (C10 S (C10 S 0))) 4813375 0))
+(on-new (#(60) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P33) S) S S) (C10 S (C10 S 0))) 4813382 0))
+(on-new (#(52) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) S) P31 P33) P11) S S) (C10 S (C10 S 0))) 4813386 0))
+(on-new (#(108) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S) S S) (C10 S (C10 S 0))) 4813398 0))
+(on-new (#(81) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S) S P11) (C10 S (C10 S 0))) 4813399 0))
+(on-new (#(36) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P31)) P11) P31 P31) S) P11 S) (C10 S (C10 S 0))) 4813400 0))
+(on-new (#(34) 21 (C10 (C21 (R1 (C13 (C21 (R1 (C13 S (C13 S P31)) S) S S) P31) S) S P11) (C10 S 0)) 4826195 0))
+
+No new giants, so 4083 is still the biggest until complexity 22 when it's trumped by q(2) and, much smaller, 5*2^127-1="Marc's first big number" (below) among whatever else.
 
 
 The revised search strategy invalidates some of the results below:
