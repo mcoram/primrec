@@ -3,7 +3,7 @@
 (require file/gunzip)
 (require "pr_primitives.rkt")
 (require "util.rkt")
-(provide main)
+(provide main a0l dump-natural-ordering maxdepth v-functions dump-level-sets find-a0-matches find-a1-matches find-a2-matches)
 
 (printf "loading... ")
 (define ldat 
