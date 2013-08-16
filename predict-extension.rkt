@@ -107,7 +107,8 @@
 ; Reason might be that R1 yields a function with the usual arity 2 order but R0 calls it with the new order.
 ; Bother!
 ; Under new (classical) order, (R0 (R1 (C13 S (C13 S P32)) S) 0) maps i->i^2
-; will have to compare what it meant under old order.
+; Under the old order, it's companion with P31, is the Eulerian sequence function: (R0 (R1 (C13 S (C13 S P31)) S) 0)
+
 
 (define (print-at-most num lst)
   (let ([sublst 
