@@ -1,7 +1,7 @@
 Results for standard-argument-order primitive recursion here
 ============================================================
 
-An ordering of the non-negative integers by the number of symbols in the shortest primitive recursive expression that constructs them (see pr_primitives.rkt for the definitions of the primitives (in the standard-order-primrec branch for these results)).
+An ordering of the non-negative integers by the number of symbols in the shortest primitive recursive expression that constructs them (see pr_primitives.rkt for the definitions of the primitives) is below.
 
 (0)   <
 (1)    <
@@ -220,13 +220,16 @@ The following summarize facts about the shortest constructions of these non-nega
 functions
 ---------
 
-(#(0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 225 256 289 324 361 400 441 484 529 576) 9 (R0 (R1 (C13 S (C13 S P32)) S) 0) 2283 0)
-(#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) 12 (R0 (C22 (R1 (C13 S (C13 S P32)) S) P22 P21) 0) 21844 3320)
+(#(0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 225 256 289 324 361 400 441 484 529 576) 9 (R0 (R1 (C13 S (C13 S P32)) S) 0) 2283 0) ; squares
+(#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) 12 (R0 (C22 (R1 (C13 S (C13 S P32)) S) P22 P21) 0) 21844 3320) ; Eulerian numbers A(n=i+1,m=1)
+(#(1 1 2 6 24 120 720 5040 40320 362880 3628800 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 14 (C11 S (R0 (R1 (C23 (R1 (C13 S P32) S) P32 P33) P11) 0)) 78600 -1) ; factorial
 
 
 
 Results for loop-variable-first-order Primitive Recursion below
 ===============================================================
+
+The results below are to be understood under the definition of pr_primitives.rkt that lives in branch loop-variable-primrec. Notably in the construction of (R0 f g) it applies f in the loop as (f u i), where u represents the result of previous calls to f inductively and where i is the iteration index, instead of in the more common order in scholarly work of (f i u), which the master branch now adopts. An interesting consequence of this difference is that it made it possible to construct 4083 by depth 20, which was enabled by an especially short representation of the Eulerian numbers sequence as a depth 9 function. Much of the discussion carries over without particular change (except interchange of P31 and P32 or P21 and P22 under R0 and R1 to correct for the change in order of arguments to f) but the differences are harder to reconcile when an (R0 (R1 ...) ...) construction is used.
 
 The shortest representation of the non-negative integers from 0..6 is the literal one in which S is applied repeatedly to 0. We say these representations are the shortest because if you count the number of symbols used to construct them this way, there is no other tree of primitive recursion primitives with fewer leaves that computes the same results. In other words, you have to use at least as many symbols as the literal construction uses; we call this number the complexity and write it second in each of the lists below.
   (#(0) 1 0 1 0)
