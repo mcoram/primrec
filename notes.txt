@@ -1,5 +1,7 @@
 Results for standard-argument-order primitive recursion here
-===================================================
+============================================================
+
+An ordering of the non-negative integers by the number of symbols in the shortest primitive recursive expression that constructs them (see pr_primitives.rkt for the definitions of the primitives (in the standard-order-primrec branch for these results)).
 
 (0)   <
 (1)    <
@@ -15,6 +17,9 @@ Results for standard-argument-order primitive recursion here
 (14 16 17 18 19 22 23 24 27 31 32 39)	 <
 (20 28 29 54 55 66 81 231 1540)          <
 (25 26 30 33 34 35 36 37 38 40 43 45 46 47 48 52 53 60 63 64 67 79 80 94 95 108 121)
+(which are < the left out numbers 41,42,44,49..51,56..59,61..62,68..78,82..93,96..107,109..120,122..230,232..1539,1541...)
+
+The following summarize facts about the shortest constructions of these non-negative integers. The format is (#(<<the number>>) <<the number of symbols>> <<the expression is scheme syntax>> <<the enumeration index of this expression in the search>> <<the computation time in milliseconds to obtain the result>>).
 
   (#(0) 1 0 1 0)
   (#(1) 3 (C10 S 0) 4 0)
