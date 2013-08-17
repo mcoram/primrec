@@ -5,7 +5,7 @@
 (require "util.rkt")
 (provide main a0l dump-natural-ordering maxdepth v-functions dump-level-sets find-a0-matches find-a1-matches find-a2-matches)
 
-(printf "loading... ")
+(printf "loading... \n")
 (define ldat 
   (let* 
       ([inname "out/functions-full.20"]
