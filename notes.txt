@@ -1,3 +1,236 @@
+Results for standard-argument-order primitive recursion here
+============================================================
+
+An ordering of the non-negative integers by the number of symbols in the shortest primitive recursive expression that constructs them (see pr_primitives.rkt for the definitions of the primitives) is below.
+
+(0)   <
+(1)    <
+(2)     <
+(3) 	 <
+(4) 	  <
+(5) 	   <
+(6) 	    <
+(7) 	     <
+(8 9 10)      <
+(11 12 15)     <
+(13 21)         <
+(14 16 17 18 19 22 23 24 27 31 32 39)	 <
+(20 28 29 54 55 66 81 231 1540)          <
+(25 26 30 33 34 35 36 37 38 40 43 45 46 47 48 52 53 60 63 64 67 79 80 94 95 108 121)
+(which are < the left out numbers 41,42,44,49..51,56..59,61..62,68..78,82..93,96..107,109..120,122..230,232..1539,1541...)
+
+The following summarize facts about the shortest constructions of these non-negative integers. The format is (#(<<the number>>) <<the number of symbols>> <<the expression is scheme syntax>> <<the enumeration index of this expression in the search>> <<the computation time in milliseconds to obtain the result>>).
+
+  (#(0) 1 0 1 0)
+  (#(1) 3 (C10 S 0) 4 0)
+  (#(2) 5 (C10 S (C10 S 0)) 10 0)
+  (#(3) 7 (C10 S (C10 S (C10 S 0))) 54 0)
+  (#(4) 9 (C10 S (C10 S (C10 S (C10 S 0)))) 287 0)
+  (#(5) 11 (C10 S (C10 S (C10 S (C10 S (C10 S 0))))) 1462 0)
+  (#(6) 13 (C10 S (C10 S (C10 S (C10 S (C10 S (C10 S 0)))))) 7201 0)
+  (#(7) 14 (C10 (C21 (R1 (C13 S P32) S) S S) (C10 S (C10 S 0))) 15775 0)
+  (#(8)
+   16
+   (C10 S (C10 (C21 (R1 (C13 S P32) S) S S) (C10 S (C10 S 0))))
+   77958
+   0)
+  (#(9)
+   16
+   (C10 (C21 (R1 (C13 S P32) S) S S) (C10 S (C10 S (C10 S 0))))
+   77970
+   0)
+  (#(10)
+   16
+   (C10 (C21 (R1 (C13 S (C13 S P32)) S) S S) (C10 S (C10 S 0)))
+   78013
+   0)
+  (#(15)
+   17
+   (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) S S) (C10 S 0))
+   184187
+   0)
+  (#(11)
+   17
+   (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) S P11) (C10 S 0))
+   184188
+   0)
+  (#(12)
+   17
+   (C10 (C21 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) S) S S) (C10 S 0))
+   184198
+   0)
+  (#(13)
+   18
+   (C10 (C21 (R1 (C13 S (C13 S P32)) S) S S) (C10 S (C10 S (C10 S 0))))
+   384919
+   0)
+  (#(21)
+   18
+   (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) P32) S) S S) (C10 S 0))
+   385787
+   0)
+  (#(16)
+   19
+   (C10 S (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) S S) (C10 S 0)))
+   888061
+   0)
+  (#(14)
+   19
+   (C10 (R0 (C12 S (R1 (C13 S P32) S)) 0) (C10 S (C10 S (C10 S (C10 S 0)))))
+   888115
+   0)
+  (#(39)
+   19
+   (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) S S) (C10 S (C10 S 0)))
+   888385
+   0)
+  (#(31)
+   19
+   (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) S P11) (C10 S (C10 S 0)))
+   888386
+   0)
+  (#(19)
+   19
+   (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) P11 S) (C10 S (C10 S 0)))
+   888387
+   0)
+  (#(23)
+   19
+   (C10
+    (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) P11) S P11)
+    (C10 S (C10 S 0)))
+   888390
+   0)
+  (#(32)
+   19
+   (C10 (C21 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) S) S S) (C10 S (C10 S 0)))
+   888396
+   0)
+  (#(24)
+   19
+   (C10
+    (C21 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) S) S P11)
+    (C10 S (C10 S 0)))
+   888397
+   0)
+  (#(18)
+   19
+   (C10 (C21 (R1 (C13 S (C23 (R1 (C13 S P32) S) P32 P32)) S) S S) (C10 S 0))
+   889403
+   0)
+  (#(17)
+   19
+   (C10 (C21 (R1 (C13 (C21 (R1 (C13 S P32) S) S S) P32) S) S P11) (C10 S 0))
+   889434
+   0)
+  (#(22)
+   19
+   (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) S) P32 P32) S) S P11) (C10 S 0))
+   889472
+   0)
+  (#(27)
+   19
+   (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) P11) P32 P32) S) S S) (C10 S 0))
+   889503
+   0)
+  (#(20)
+   20
+   (C10
+    (R0 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) S) 0)
+    (C10 S (C10 S (C10 S 0))))
+   1951901
+   0)
+  (#(1540)
+   20
+   (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) P32) S) S S) (C10 S (C10 S 0)))
+   1952456
+   0)
+  (#(231)
+   20
+   (C10
+    (C21 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) P32) S) S P11)
+    (C10 S (C10 S 0)))
+   1952457
+   0)
+  (#(55)
+   20
+   (C10
+    (C21 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) P32) S) P11 S)
+    (C10 S (C10 S 0)))
+   1952458
+   0)
+  (#(29)
+   20
+   (C10 (C21 (R1 (C13 S (C13 (R0 (R1 (C13 S P32) S) 0) P32)) S) S S) (C10 S 0))
+   1955339
+   0)
+  (#(66)
+   20
+   (C10 (C21 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) (C13 S P32)) S) S S) (C10 S 0))
+   1955347
+   0)
+  (#(28)
+   20
+   (C10
+    (C21 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) (C13 S P32)) S) S P11)
+    (C10 S 0))
+   1955348
+   0)
+  (#(54)
+   20
+   (C10 (C21 (R1 (C13 (R0 (C12 S (R1 (C13 S P32) S)) 0) P32) S) S S) (C10 S 0))
+   1955369
+   0)
+  (#(81)
+   20
+   (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) S S) (C10 S 0))
+   1955385
+   0))
+
+
+
+(on-new (#(40) 21 (C10 S (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) S S) (C10 S (C10 S 0)))) 4301927 0))
+(on-new (#(33) 21 (C10 S (C10 (C21 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) S) S S) (C10 S (C10 S 0)))) 4301931 0))
+(on-new (#(25) 21 (C10 S (C10 (C21 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) S) S P11) (C10 S (C10 S 0)))) 4301932 0))
+(on-new (#(95) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) S S) (C10 S (C10 S (C10 S 0)))) 4302271 0))
+(on-new (#(79) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) S P11) (C10 S (C10 S (C10 S 0)))) 4302272 0))
+(on-new (#(47) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) P11 S) (C10 S (C10 S (C10 S 0)))) 4302273 0))
+(on-new (#(63) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P32) S) P32 P32) P11) S P11) (C10 S (C10 S (C10 S 0)))) 4302276 0))
+(on-new (#(80) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) S) S S) (C10 S (C10 S (C10 S 0)))) 4302282 0))
+(on-new (#(64) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) S) S P11) (C10 S (C10 S (C10 S 0)))) 4302283 0))
+(on-new (#(48) 21 (C10 (C21 (R1 (C23 (R1 (C13 S P32) P11) P32 P32) P11) S P11) (C10 S (C10 S (C10 S 0)))) 4302287 0))
+(on-new (#(46) 21 (C10 (C21 (R1 (C13 S (C23 (R1 (C13 S P32) S) P32 P32)) S) S S) (C10 S (C10 S 0))) 4303289 0))
+(on-new (#(38) 21 (C10 (C21 (R1 (C13 S (C23 (R1 (C13 S P32) S) P32 P32)) S) S P11) (C10 S (C10 S 0))) 4303290 0))
+(on-new (#(30) 21 (C10 (C21 (R1 (C13 S (C23 (R1 (C13 S P32) S) P32 P32)) P11) S P11) (C10 S (C10 S 0))) 4303294 0))
+(on-new (#(53) 21 (C10 (C21 (R1 (C13 (C21 (R1 (C13 S P32) S) S S) P32) S) S S) (C10 S (C10 S 0))) 4303319 0))
+(on-new (#(45) 21 (C10 (C21 (R1 (C13 (C21 (R1 (C13 S P32) S) S S) P32) S) S P11) (C10 S (C10 S 0))) 4303320 0))
+(on-new (#(37) 21 (C10 (C21 (R1 (C13 (C21 (R1 (C13 S P32) S) S S) P32) P11) S P11) (C10 S (C10 S 0))) 4303324 0))
+(on-new (#(43) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) S) P32 P31) S) S S) (C10 S (C10 S 0))) 4303349 0))
+(on-new (#(35) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) S) P32 P31) S) S P11) (C10 S (C10 S 0))) 4303350 0))
+(on-new (#(121) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) S) P32 P32) S) S S) (C10 S (C10 S 0))) 4303357 0))
+(on-new (#(94) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) S) P32 P32) S) S P11) (C10 S (C10 S 0))) 4303358 0))
+(on-new (#(67) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) S) P32 P32) P11) S P11) (C10 S (C10 S 0))) 4303362 0))
+(on-new (#(60) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) S) P32 P33) S) S S) (C10 S (C10 S 0))) 4303365 0))
+(on-new (#(52) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) S) P32 P33) P11) S S) (C10 S (C10 S 0))) 4303369 0))
+(on-new (#(36) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) P11) P32 P31) S) S S) (C10 S (C10 S 0))) 4303381 0))
+(on-new (#(108) 21 (C10 (C21 (R1 (C23 (R1 (C13 S (C13 S P32)) P11) P32 P32) S) S S) (C10 S (C10 S 0))) 4303389 0))
+(on-new (#(26) 21 (C10 (C21 (R1 (C13 S (C23 (R1 (C13 S (C13 S P32)) S) P32 P32)) S) S P11) (C10 S 0)) 4310520 0))
+(on-new (#(34) 21 (C10 (C21 (R1 (C13 (C21 (R1 (C13 S (C13 S P32)) S) S S) P32) S) S P11) (C10 S 0)) 4310570 0))
+
+functions
+---------
+
+(#(0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 225 256 289 324 361 400 441 484 529 576) 9 (R0 (R1 (C13 S (C13 S P32)) S) 0) 2283 0) ; squares
+(#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) 12 (R0 (C22 (R1 (C13 S (C13 S P32)) S) P22 P21) 0) 21844 3320) ; Eulerian numbers A(n=i+1,m=1)
+(#(1 1 2 6 24 120 720 5040 40320 362880 3628800 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 14 (C11 S (R0 (R1 (C23 (R1 (C13 S P32) S) P32 P33) P11) 0)) 78600 -1) ; factorial
+
+
+
+Results for loop-variable-first-order Primitive Recursion below
+===============================================================
+
+The results below are to be understood under the definition of pr_primitives.rkt that lives in branch loop-variable-primrec. Notably in the construction of (R0 f g) it applies f in the loop as (f u i), where u represents the result of previous calls to f inductively and where i is the iteration index, instead of in the more common order in scholarly work of (f i u), which the master branch now adopts. An interesting consequence of this difference is that it made it possible to construct 4083 by depth 20, which was enabled by an especially short representation of the Eulerian numbers sequence as a depth 9 function. Much of the discussion carries over without particular change (except interchange of P31 and P32 or P21 and P22 under R0 and R1 to correct for the change in order of arguments to f) but the differences are harder to reconcile when an (R0 (R1 ...) ...) construction is used.
+
 The shortest representation of the non-negative integers from 0..6 is the literal one in which S is applied repeatedly to 0. We say these representations are the shortest because if you count the number of symbols used to construct them this way, there is no other tree of primitive recursion primitives with fewer leaves that computes the same results. In other words, you have to use at least as many symbols as the literal construction uses; we call this number the complexity and write it second in each of the lists below.
   (#(0) 1 0 1 0)
   (#(1) 3 (C10 S 0) 4 0)

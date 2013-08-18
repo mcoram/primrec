@@ -3,9 +3,9 @@
 (require file/gunzip)
 (require "pr_primitives.rkt")
 (require "util.rkt")
-(provide main find-a1-matches find-a0-matches find-a2-matches)
+(provide main a0l dump-natural-ordering maxdepth v-functions dump-level-sets find-a0-matches find-a1-matches find-a2-matches)
 
-(printf "loading... ")
+(printf "loading... \n")
 (define ldat 
   (let* 
       ([inname "out/functions-full.19"]
@@ -108,6 +108,21 @@
 
 (define (filter-slow lst cut) (filter (lambda (x) (or (>= (fifth x) cut) (equal? (fifth x) -1))) lst))
 ;(take (filter-slow a1l 1) 100)
+
+;Confusion. Orig order 4083:
+;(#(4083) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P31)) S) 0) P31) S) S S) (C10 S 0)) 2156858 0)
+;Conversion of P31 to P32 yields 81 under new order?
+; (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) S S) (C10 S 0))
+;  (#(81)
+;   20
+;   (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) S S) (C10 S 0))
+;   1955385
+;   0))
+; Reason might be that R1 yields a function with the usual arity 2 order but R0 calls it with the new order.
+; Bother!
+; Under new (classical) order, (R0 (R1 (C13 S (C13 S P32)) S) 0) maps i->i^2
+; Under the old order, it's companion with P31, is the Eulerian sequence function: (R0 (R1 (C13 S (C13 S P31)) S) 0)
+
 
 (define (print-at-most num lst)
   (let ([sublst 
