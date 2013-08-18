@@ -1,0 +1,31 @@
+<HTML>
+<HEAD>
+  <TITLE>Primitive Recursive Lookup</TITLE>
+  <STYLE>
+    <!--
+    H1, H2 { color: green }
+    -->
+  </STYLE>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</HEAD>
+<BODY>
+    <H1>Primitive Recursive Function Lookup</H1>
+
+  Enter a sequence of non-negative integers, like "0 1 2" or "0 1 0 1" and I'll try to find a function that matches your pattern.<p>
+  Specifically, I'll search for a simple primitive recursive function that matches your sequence when it's evaluated at 0 1 2 3 4 ... 24.<p>
+
+<form>
+  Query: <input id="target" type="text" value="">
+</form>
+<div id="result"></div>
+<script>
+$('#target').keyup(function(event) {
+  var q = $('#target').val();
+  $.ajax({
+    url: "pr_find",
+    data: { q: q}
+    }).done(function( result ) {
+       $("#result").html(result)
+     });
+  });
+</script>

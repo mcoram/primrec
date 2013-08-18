@@ -3,7 +3,7 @@
 (require file/gunzip)
 (require "pr_primitives.rkt")
 (require "util.rkt")
-(provide main)
+(provide main find-a1-matches find-a0-matches find-a2-matches)
 
 (printf "loading... ")
 (define ldat 
