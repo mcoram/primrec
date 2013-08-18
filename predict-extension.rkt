@@ -8,7 +8,7 @@
 (printf "loading... \n")
 (define ldat 
   (let* 
-      ([inname "out/functions-full.20"]
+      ([inname "out/functions-full.19"]
        [ifile1 (open-input-file (string-append inname ".serial.gz"))]
        [ifile (open-output-bytes)])
     (gunzip-through-ports ifile1 ifile)
