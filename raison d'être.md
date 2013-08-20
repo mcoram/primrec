@@ -20,6 +20,17 @@ because the former explanation exists I think of 65536 as a simpler
 number than, say, 55690 (the last 4 digits were chosen by random.org;
 the point would be clearer if the last digit wasn't a 0, but oh well).
 
+Is that intuition valid? Curiously, it turns out that 65536 is first constructed (see notes)
+as a standard-order primitive recursive function with 22 symbols
+by applying the function f:i->(i+2)^(2^(i+1)) to 2; where f is implemented
+by repeated squaring, and where squaring is implemented via an algorithm tantamount to:
+
+  u=0
+  i times: u=3*u+1
+  return u
+
+So the simplest construction of 65536 is via (2+2) squared (2+1) times. Neat!
+
 Anyway, the primitive recursive functions are a classical and simple
 system for writing the natural numbers and functions of them, so
 systematically exploring the kinds of functions that are simple under

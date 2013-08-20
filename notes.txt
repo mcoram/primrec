@@ -19,11 +19,15 @@ An ordering of the non-negative integers by the number of symbols in the shortes
 (25 26 30 33 34 35 36 37 38 40 43 45 46 47 48 52 53 60 63 64 67 79 80 94 95 108 121) <
 (41 42 49 56 57 65 68 76 78 82 83 100 101 102 119 120 135 136 153 156 168 183 210 223 230 232 255 256 289 383 435 436 512 1539 1541 2048 2278 2279 6143 6561 7259 7260 9453 12288 24575 26796 53248 65536 98303 131071 131072 557055 1186570 25165823 26357430 50331648 402653184 8589934591 68719476735 141733920768 22539988369407) 
 
-The five largest numbers took more than 5 seconds to compute naively, so their results show as -1 in the listings that follow, but their evaluation was fast enough after a simple trick (later).
+The five largest numbers took more than 5 seconds to compute naively, so their results show as -1 in the listings that follow, but their evaluation was fast enough after a simple trick (see mystery later).
 
-The above numbers are all lesser by this ordering, i.e. simpler, than the left out numbers: 44,50,51,58,59,61..62,69..75,77,84..93,96..99,103..107,109..118,122..134,137..152,154,155,157..167,169..209,211..222,224..229,233..254,257..288,290..382,384..434,437..511,513..1538,1542..2047,2049..2277,2280..6142,6144..6560,6562..7258,7261..9452,9454..12287,12289..24574,24576..26795,26797..53247,53249..65535, etc... (modulo the completion of the 22nd stage)).
+The above numbers are all lesser by this ordering, i.e. simpler, than the left out numbers: 44,50,51,58,59,61..62,69..75,77,84..93,96..99,103..107,109..118,122..134,137..152,154,155,157..167,169..209,211..222,224..229,233..254,257..288,290..382,384..434,437..511,513..1538,1542..2047,2049..2277,2280..6142,6144..6560,6562..7258,7261..9452,9454..12287,12289..24574,24576..26795,26797..53247,53249..65535, etc... (modulo the completion of the 22nd stage).
 
 The following summarize facts about the shortest constructions of these non-negative integers. The format is (#(<<the result of evaluation>>) <<the number of symbols>> <<the expression in scheme syntax>> <<the enumeration index of this expression in the search>> <<the computation time in milliseconds to obtain the result>>).
+
+For arity 0 functions, i.e. the non-negative integers that we're concerned with at the moment, the result of evaluation is just the number itself (or -1 to represent timeout).
+For arity 1 functions, I'll show the evaluation of the function on the inputs 0..24.
+For arity 2 functions, I'll evaluate it only on the 25 pairs of (i,j) from 0..4 cross 0..4.
 
   (#(0) 1 0 1 0)
   (#(1) 3 (C10 S 0) 4 0)
@@ -481,7 +485,6 @@ The following summarize facts about the shortest constructions of these non-nega
 Let's work on the first mystery number: x1=(C10 (C21 (R1 (C23 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) P32 P32) S) S S) (C10 S 0))
 Let g stand for the outermost R1:
   (#(1 2 3 4 5 5 15 39 95 223 223 557055 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 15 (R1 (C23 (R1 (C23 (R1 (C13 S P32) S) P32 P32) S) P32 P32) S) 761153 -1)
-[Notation: since g is an arity 2 function, when I show the results of evaluation in the first slot, I evaluated it only on a subset of inputs. Specifically the 25 pairs of (i,j) from 0..4.]
 Because of the (C21 g S S) construction being applied to 1, x1=(g 2 2).
 The innermost R1, let's call it h, is relatively simple:
   (#(1 2 3 4 5 2 3 4 5 6 3 4 5 6 7 4 5 6 7 8 5 6 7 8 9) 5 (R1 (C13 S P32) S) 248 0)
@@ -526,15 +529,53 @@ where:
 (define (h i j) (+ (+ i j) 1)) ;   (#(1 2 3 4 5 2 3 4 5 6 3 4 5 6 7 4 5 6 7 8 5 6 7 8 9) 5 (R1 (C13 S P32) S) 248 0)
 (define (h0 i j) (+ i j)) ;        (#(0 1 2 3 4 1 2 3 4 5 2 3 4 5 6 3 4 5 6 7 4 5 6 7 8) 5 (R1 (C13 S P32) P11) 249 0)
 
+Let's consider 65536. Is it computed ala 2^16 or what?
+  (#(65536) 22 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) S S) (C10 S (C10 S 0))) 9782747 2)
+We can recognize the innermost R1 as a relative of h, call it h2: (i,j)->2*i+j+1:
+  (#(1 2 3 4 5 3 4 5 6 7 5 6 7 8 9 7 8 9 10 11 9 10 11 12 13) 7 (R1 (C13 S (C13 S P32)) S) 1295 0)
+Working out, (R0 h2 0) turns out to be the squaring function sq:i->i^2:
+  (#(0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 225 256 289 324 361 400 441 484 529 576) 9 (R0 (R1 (C13 S (C13 S P32)) S) 0) 2283 0)
+This is curious, because it's code is:
+  u=0
+  i times: u=3*u+1
+  return u
+How neat; squaring is implemented via tripling, effectively.
+Working out, (R1 (C13 sq P32) S) is:
+  (#(1 2 3 4 5 1 4 9 16 25 1 16 81 256 625 1 256 6561 65536 390625 1 65536 43046721 -1 -1) 13 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) 156171 -1)
+And stands for:
+  u=j+1
+  i times: u=u*u
+  return u
+So it's g:(i,j)->(j+1)^(2^i) implemented by repeated squaring implemented by repeated tripling. Cool.
+Then f=(C21 g S S) means f:i->(i+2)^(2^(i+1))
+  (#(4 81 65536 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) S S) 433111 -1)
+And finally, f applied to 2 gives 65536.
 
+Considering f applied to other values, we note first that 81 was, in fact, found as (f 1) at complexity 20:
+  (#(81) 20 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) S S) (C10 S 0)) 1955385 0)
+We can speculate that (f 3)=152587890625 will show up at complexity 24 (speculation because it could show up at 23 some other way).
 
+(define (f i) (expt (+ i 2) (expt 2 (+ i 1))))
+(for/list ([i (in-range 7)]) (f i))
+'(4
+  81
+  65536
+  152587890625
+  7958661109946400884391936
+  1219760487635835700138573862562971820755615294131238401
+  39402006196394479212279040100143613805079739270465446667948293404245721771497210611414266254884915640806627990306816)
 
+I notice that f's brother f2:i->i^(2^i), where the latter S's are converted to P11's made it to OEIS (http://oeis.org/A097547):
+  (#(0 1 16 6561 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) P11) P11 P11) 433118 -1)
+     0 1 16 6561 4294967296 23283064365386962890625 ...
+f2 wasn't used exactly to get 6561 @ complexity 22, though; it was:
+  (#(6561) 22 (C10 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) S P11) (C10 S (C10 S 0))) 9782748 0)
+Using the slightly faster sibling f3:i->(i+1)^(2^(i+1))
+  (#(1 16 6561 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 16 (C21 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) S P11) 433112 -1)
 
 
 functions
 ---------
-
-[Notation: for arity 1 functions, when I show the results of evaluation in the first slot, I evaluate only on the inputs 0..24.]
 
 (#(0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 225 256 289 324 361 400 441 484 529 576) 9 (R0 (R1 (C13 S (C13 S P32)) S) 0) 2283 0) ; squares
 (#(0 1 4 11 26 57 120 247 502 1013 2036 4083 8178 16369 32752 65519 131054 262125 524268 1048555 2097130 4194281 8388584 16777191 33554406) 12 (R0 (C22 (R1 (C13 S (C13 S P32)) S) P22 P21) 0) 21844 3320) ; Eulerian numbers A(n=i+1,m=1)
