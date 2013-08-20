@@ -1,4 +1,5 @@
 * speedup to heuristically reduce burden of slow functions producing stuff like:
+
         (evaluation-timeout)
 	(on-new (#(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 -1 -1 -1) 17 (C31 P33 (C21 (R1 (C23 (R1 (C13 S P31) P11) P31 P31) P11) S P11) S S) 1191243 -1))
 	(evaluation-timeout)

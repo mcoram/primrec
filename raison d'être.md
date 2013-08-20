@@ -25,9 +25,9 @@ as a standard-order primitive recursive function with 22 symbols
 by applying the function f:i->(i+2)^(2^(i+1)) to 2; where f is implemented
 by repeated squaring, and where squaring is implemented via an algorithm tantamount to:
 
-   u=0
-   i times: u=3*u+1
-   return u
+      u=0
+      i times: u=3*u+1
+      return u
 
 So the simplest construction of 65536 is via (2+2) squared (2+1) times. Neat!
 
