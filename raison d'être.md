@@ -23,11 +23,11 @@ the point would be clearer if the last digit wasn't a 0, but oh well).
 Is that intuition valid? Curiously, it turns out that 65536 is first constructed
 as a standard-order primitive recursive function with 22 symbols
 by applying the function f:i->(i+2)^(2^(i+1)) to 2; where f is implemented
-by repeated squaring, and where squaring is implemented via an algorithm tantamount to:
+by repeated squaring, and where squaring is implemented via an algorithm that maps i via:
 
-      u=0
-      i times: u=3*u+1
-      return u
+   	      u=0
+	      For k from 0 to i-1: u=2*k+u+1
+	      return u
 
 So the simplest construction of 65536 is via (2+2) squared (2+1) times. So 65536 is indeed simple, but there's an even "simpler" way to understand it.
 

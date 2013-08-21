@@ -537,9 +537,8 @@ Working out, (R0 h2 0) turns out to be the squaring function sq:i->i^2:
   (#(0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 225 256 289 324 361 400 441 484 529 576) 9 (R0 (R1 (C13 S (C13 S P32)) S) 0) 2283 0)
 This is curious, because it's code is:
   u=0
-  i times: u=3*u+1
+  For k from 0 to i-1: u=2*k+u+1
   return u
-How neat; squaring is implemented via tripling, effectively.
 Working out, (R1 (C13 sq P32) S) is:
   (#(1 2 3 4 5 1 4 9 16 25 1 16 81 256 625 1 256 6561 65536 390625 1 65536 43046721 -1 -1) 13 (R1 (C13 (R0 (R1 (C13 S (C13 S P32)) S) 0) P32) S) 156171 -1)
 And stands for:
