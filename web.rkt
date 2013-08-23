@@ -1,5 +1,7 @@
 #lang racket
 
+;To use, start it running and when the loading is done browse to: http://localhost:8000/
+
 (require (planet dmac/spin))
 (require web-server/templates)
 (require "predict-extension.rkt")
@@ -14,7 +16,7 @@
      (lambda (req)
        (let* ([q (params req 'q)]
               [v1 (list->vector (map string->number (string-split (string-normalize-spaces q) " ")))]
-              [matchv (take-at-most (find-a1-matches v1) 10)]
+              [matchv (take-at-most (find-a1-matches v1) 30)]
               [sv (map (lambda (x) (format "~a" x)) matchv)])
          (string-join sv "<br>\n"))))
 
