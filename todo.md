@@ -1,3 +1,4 @@
+* speedup by introducing compiled forms for specific R0 and R1 forms.
 * speedup to heuristically reduce burden of slow functions producing stuff like:
 
         (evaluation-timeout)
