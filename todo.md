@@ -1,4 +1,3 @@
-* speedup by introducing compiled forms for specific R0 and R1 forms.
 * speedup to heuristically reduce burden of slow functions producing stuff like:
 
         (evaluation-timeout)
@@ -24,6 +23,7 @@
 
 Finished
 ========
+* speedup by introducing compiled forms for specific R0 and R1 forms.
 * Confirm/figure a fix for the associativity rule foulup
 * Capture potential slow evaluation of arity 0 constructions
 * change search strategy to treat slow functions as "novel"

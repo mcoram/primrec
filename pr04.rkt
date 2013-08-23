@@ -5,6 +5,7 @@
 (require "ksumj.rkt")
 (require "util.rkt")
 (require "run_with_timeout.rkt")
+(require "pr_compiled-forms.rkt")
 (require racket/serialize)
 (require file/gzip)
 
@@ -127,10 +128,13 @@
                       (set! update-count (+ 1 update-count)) ; !side-effect on update-count!
                       (when (equal? (modulo update-count 1000) 0) (displayln (list 'update-count update-count)))
                       #t))
-                  (lambda (s flst l) (let-values ([(result runtime completed f) (run1 s flst l depth1)]) ; to-key-value-force
-                                       (values result
-                                               (list s f l update-count runtime result)
-                                               (not completed)))) ;force updates if the result didn't complete -- i.e. keep all slow functions
+                  (lambda (s flst l) ; to-key-value-force
+                    (let* ([f2 (hash-ref compiled-forms s null)] ; load a compiled form for s if any
+                           [flst2 (if (null? f2) flst (list P11 f2))]) ; build the result into flst2 or use flst in flst2
+                      (let-values ([(result runtime completed f) (run1 s flst2 l depth1)]) 
+                        (values result
+                                (list s f l update-count runtime result)
+                                (not completed))))) ;force updates if the result didn't complete -- i.e. keep all slow functions
                   (lambda (key val) ; on-new -- !side-effect on the accumulator!
                     (begin
                       (displayln (list 'on-new (val->prettyval val)))
