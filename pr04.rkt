@@ -18,7 +18,7 @@
 ;Customize this to output as you go
 (define (on-begin-extender arity depth-p1)
   (let ([depth (- depth-p1 1)])
-    (when (equal? arity 0)
+    (when (and (or (equal? arity 0) (equal? arity 1)) (>= depth 0))
       (printf "Dumping\n")
       (define outname (format "out/functions-full.~a.serial" depth))
       (define ofile (open-output-file outname #:exists 'replace))

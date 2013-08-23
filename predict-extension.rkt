@@ -16,9 +16,10 @@
     (deserialize (read (open-input-bytes (get-output-bytes ifile))))))
 (define maxdepth (second ldat))
 (define v-functions (third ldat))
+(define v-depths (vector-map (lambda (x) (- (vector-length x) 1)) v-functions))
 (define l-slow (reverse (fourth ldat)))
 (define fun-ct (vector-map (lambda (v1) (apply + (vector->list (vector-map length v1)))) v-functions))
-(printf "done.\nFunctions of arity 0,1,2,3 respectively are available to depth ~a,~a,~a,~a.\n" maxdepth (- maxdepth 2) (- maxdepth 3) (- maxdepth 4))
+(apply printf `{"done.\nFunctions of arity 0,1,2,3 respectively are available to depth ~a,~a,~a,~a.\n" ,@(vector->list v-depths)})
 (apply printf `{"The total number of functions available are ~a, ~a, ~a, ~a, respectively.\n\n\n" ,@(vector->list fun-ct)})
 
 
