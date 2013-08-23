@@ -3,7 +3,7 @@
 (require file/gunzip)
 (require "pr_primitives.rkt")
 (require "util.rkt")
-(provide main a0l dump-natural-ordering maxdepth v-functions dump-level-sets find-a0-matches find-a1-matches find-a2-matches)
+(provide main a0l a1l a2l a3l dump-natural-ordering maxdepth v-functions dump-level-sets find-a0-matches find-a1-matches find-a2-matches find-by-code-string)
 
 (printf "loading... \n")
 (define ldat 
@@ -29,6 +29,10 @@
   (apply append (vector->list (vector-ref v-functions 0))))
 (define a1l
   (apply append (vector->list (vector-ref v-functions 1))))
+(define a2l
+  (apply append (vector->list (vector-ref v-functions 2))))
+(define a3l
+  (apply append (vector->list (vector-ref v-functions 3))))
 
 (define (complexity-cut a0l cut) (filter (lambda (x) (<= (second x) cut)) a0l))
 (define (naturals-cut cut) (sort (map (lambda (x) (vector-ref (first x) 0)) (complexity-cut a0l cut)) <))
