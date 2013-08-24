@@ -6,6 +6,7 @@
 (require "util.rkt")
 (require "run_with_timeout.rkt")
 (require "pr_compiled-forms.rkt")
+(require "pr_peephole-check.rkt")
 (require racket/serialize)
 (require file/gzip)
 
@@ -108,7 +109,7 @@
                   (when (ok? x y z)
                     (let-values ([(key val force) (to-key-value-force x y z)])
                       (let ([oval (hash-ref ht key null)])
-                        (if (null? oval)
+                        (if (and (not (null? key)) (null? oval))
                             (begin (hash-set! ht key val)
                                    (on-new key val))
                             (when force
@@ -129,12 +130,14 @@
                       (when (equal? (modulo update-count 1000) 0) (displayln (list 'update-count update-count)))
                       #t))
                   (lambda (s flst l) ; to-key-value-force
-                    (let* ([f2 (hash-ref compiled-forms s null)] ; load a compiled form for s if any
-                           [flst2 (if (null? f2) flst (list P11 f2))]) ; build the result into flst2 or use flst in flst2
-                      (let-values ([(result runtime completed f) (run1 s flst2 l depth1)]) 
-                        (values result
-                                (list s f l update-count runtime result)
-                                (not completed))))) ;force updates if the result didn't complete -- i.e. keep all slow functions
+                    (if (not (null? (peephole-check s)))   ; do peephole-check
+                        (values null null #f)              ; skip updates with peephole optimizations at the top since we should have already reached their optimisation in the search
+                        (let* ([f2 (hash-ref compiled-forms s null)] ; load a compiled form for s if any
+                               [flst2 (if (null? f2) flst (list P11 f2))]) ; build the result into flst2 or use flst in flst2
+                          (let-values ([(result runtime completed f) (run1 s flst2 l depth1)]) 
+                            (values result
+                                    (list s f l update-count runtime result)
+                                    (not completed)))))) ;force updates if the result didn't complete -- i.e. keep all slow functions
                   (lambda (key val) ; on-new -- !side-effect on the accumulator!
                     (begin
                       (displayln (list 'on-new (val->prettyval val)))

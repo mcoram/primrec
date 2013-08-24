@@ -1,13 +1,13 @@
-All of these appear identical to the first; can we introduce a peephole optimizer to eliminate most of the duplicates?
-A lot of them are Ci1's with P's in obvious ways.
-E.g. these all simplify to f
-(C11 P11 f)
-(C11 f P11)
-(C21 P21 f *)
-(C21 P22 * f)
-(C31 P31 f * *)
-(C31 P32 * f *)
-(C31 P33 * * f)
+;All of these appear identical to the first; can we introduce a peephole optimizer to eliminate most of the duplicates?
+;A lot of them are Ci1's with P's in obvious ways.
+;E.g. these all simplify to f
+;(C11 P11 f)
+;(C11 f P11)
+;(C21 P21 f *)
+;(C21 P22 * f)
+;(C31 P31 f * *)
+;(C31 P32 * f *)
+;(C31 P33 * * f)
 
 (#(0 1 2 4 11 67 2279 2598061 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 13 (R0 (C12 S (C12 (R0 (R1 (C13 S P32) S) 0) P22)) 0) 50077 -1)
 (#(0 1 2 4 11 67 2279 2598061 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1) 15 (C11 P11 (R0 (C12 S (C12 (R0 (R1 (C13 S P32) S) 0) P22)) 0)) 184846 -1)
