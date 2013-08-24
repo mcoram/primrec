@@ -20,8 +20,8 @@
 ;Choose one of the keep-policies below: (your choice sets the "force" option that will put a function in the v-lv list of functions for re-use in deeper function building even if it's not observationally distinct)
 (define (keep-policy arity completed sexp l runtime result) 
 ;  (not completed)                          ;1. force updates if the result didn't complete -- i.e. keep all slow functions
-;  (if (equal? arity 0) (not completed) #f) ;2. only force keeping of arity 0 when they don't complete
-   #f                                       ;3. only keep things with distinct results
+  (if (equal? arity 0) (not completed) #f) ;2. only force keeping of arity 0 when they don't complete
+;   #f                                       ;3. only keep things with distinct results
    )
 
 ;Customize this to output as you go
@@ -106,18 +106,20 @@
                        (set! counter (+ 1 counter))))
                    timeout-per-eval)))
 
-; a moderately generic function to construct hashtable updaters with "programmable behavior"
-(define (make-updater ht ok? to-key-value-force on-new) 
+; a updated skeleton to construct hashtable updaters with "programmable behavior"
+(define (make-updater ht ok? to-key-value-force-completed on-new) 
   (let* 
       ([updater (lambda (x y z)
                   (when (ok? x y z)
-                    (let-values ([(key val force) (to-key-value-force x y z)])
+                    (let-values ([(key val force completed) (to-key-value-force-completed x y z)])
                       (let ([oval (hash-ref ht key null)])
                         (if (and (not (null? key)) (null? oval))
                             (begin (hash-set! ht key val)
                                    (on-new key val))
-                            (when force
-                                (on-new key val)))))))])
+                            (if force
+                                (on-new key val)
+                                (when (not completed)
+                                  (displayln (list 'skipping-repeated-incomplete (val->prettyval val))))))))))])
     updater))
 
 ; builds 4 updaters to handle the four entries in v-ht below
@@ -132,15 +134,16 @@
                       (set! update-count (+ 1 update-count)) ; !side-effect on update-count!
                       (when (equal? (modulo update-count 1000) 0) (displayln (list 'update-count update-count)))
                       #t))
-                  (lambda (s flst l) ; to-key-value-force
+                  (lambda (s flst l) ; to-key-value-force-completed
                     (if (not (null? (peephole-check s)))   ; do peephole-check
-                        (values null null #f)              ; skip updates with peephole optimizations at the top since we should have already reached their optimisation in the search
+                        (values null null #f #t)           ; skip updates with peephole optimizations at the top since we should have already reached their optimisation in the search
                         (let* ([f2 (hash-ref compiled-forms s null)] ; load a compiled form for s if any
                                [flst2 (if (null? f2) flst (list P11 f2))]) ; build the result into flst2 or use flst in flst2
                           (let-values ([(result runtime completed f) (run1 s flst2 l depth1)]) 
                             (values result
                                     (list s f l update-count runtime result)
-                                    (keep-policy ix completed s l runtime result)))))) ; force retention of updates according to the judgment of keep-policy
+                                    (keep-policy ix completed s l runtime result) ; force retention of updates according to the judgment of keep-policy
+                                    completed))))) 
                   (lambda (key val) ; on-new -- !side-effect on the accumulator!
                     (begin
                       (displayln (list 'on-new (val->prettyval val)))
