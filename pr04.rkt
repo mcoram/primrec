@@ -17,6 +17,13 @@
 (define evaluation-limits '(-1 25 5 3)) ; The value N_j in this list means to evaluate functions of arity j on the integers in the set {0..(N_j-1)}^j to test for distinct functions.
 ;Note that large values mean that more functions will fail to complete before the timeout. Small values mean that distinct functions won't be noticed as distinct when they are the same on these values.
 
+;Choose one of the keep-policies below: (your choice sets the "force" option that will put a function in the v-lv list of functions for re-use in deeper function building even if it's not observationally distinct)
+(define (keep-policy arity completed sexp l runtime result) 
+;  (not completed)                          ;1. force updates if the result didn't complete -- i.e. keep all slow functions
+;  (if (equal? arity 0) (not completed) #f) ;2. only force keeping of arity 0 when they don't complete
+   #f                                       ;3. only keep things with distinct results
+   )
+
 ;Customize this to output as you go
 (define (on-begin-extender arity depth-p1)
   (let ([depth (- depth-p1 1)])
@@ -99,9 +106,6 @@
                        (set! counter (+ 1 counter))))
                    timeout-per-eval)))
 
-; @@ I notice that evaluation for constants actually happens before the call to the evaluator in the induce step if arity=0 (i.e. when the (Ci0 ...) construction is made)
-; needs fix? probably. would work in the macro version. hmm.
-
 ; a moderately generic function to construct hashtable updaters with "programmable behavior"
 (define (make-updater ht ok? to-key-value-force on-new) 
   (let* 
@@ -113,8 +117,7 @@
                             (begin (hash-set! ht key val)
                                    (on-new key val))
                             (when force
-                              (begin
-                                (on-new key val))))))))])
+                                (on-new key val)))))))])
     updater))
 
 ; builds 4 updaters to handle the four entries in v-ht below
@@ -137,7 +140,7 @@
                           (let-values ([(result runtime completed f) (run1 s flst2 l depth1)]) 
                             (values result
                                     (list s f l update-count runtime result)
-                                    (not completed)))))) ;force updates if the result didn't complete -- i.e. keep all slow functions
+                                    (keep-policy ix completed s l runtime result)))))) ; force retention of updates according to the judgment of keep-policy
                   (lambda (key val) ; on-new -- !side-effect on the accumulator!
                     (begin
                       (displayln (list 'on-new (val->prettyval val)))
