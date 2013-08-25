@@ -3,7 +3,7 @@ primrec
 
 Explore the space of primitive recursive functions. I explain more about why this is worth doing [here](https://github.com/mcoram/primrec/blob/master/raison%20d'e%CC%82tre.md). The work is in the spirit of [inductive programming](http://www.inductive-programming.org/) and was inspired by [MagicHaskeller](http://nautilus.cs.miyazaki-u.ac.jp/~skata/MagicHaskeller.html) and [Incremental Learning in Inductive Programming](http://www.cogsys.wiai.uni-bamberg.de/aaip09/aaip09_submissions/incremental.pdf) and [John Tromp's Lambda Calculus and Combinatory Logic Playground](http://homepages.cwi.nl/~tromp/cl/cl.html).
 
-To get a flavor for what's going on, try running predict-extension.rkt. You'll discover that if you type in "2 3 4 5" then the results tell you that the simplest
+To get a flavor for what's going on, try running web.rkt and after the loading is done pointing a browser to (http://localhost:8000)[http://localhost:8000]. You'll discover that if you type in "2 3 4 5" then the results tell you that the simplest
 primitive recursive function that fits this sequence is the
 composition of S with S, which we write as (C11 S S). Here, S stands
 for the succesor function S: x -> x+1, and composition is written
@@ -12,15 +12,16 @@ using C11 because we want to combine an arity 1 function with an arity
 Racket (scheme) and it uses a prefix notation. Essentially (C11 S S) maps x into x+2. 
 In the output (C11 S S) is displayed as:
 
-    (#(2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26) 3 (C11 S S))
+       2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
+          3 (C11 S S) 12 0
 
-Which displays 3 parts: first the output of applying the function to the integers 0..24,
+Which displays 5 parts: first the output of applying the function to the integers 0..24,
 second the complexity of the function, which is 3 because we simply count the number of
-operators to determine the complexity, finally the function itself (written as scheme code).
+operators to determine the complexity, then the function itself (written as scheme code), then the index of the function in the search order, finally the number of milliseconds it took to compute the result.
 
 What do you expect to get if you input "1 2 4"? Did you get it?
 
-The predict-extension.rkt code does this using the results of running pr04.rkt: out/functions.serial
+The predict-extension.rkt code does this using the results of running pr04.rkt: out/functions-full.serial.gz
 which currently documents all arity 0 functions up to depth 19, arity 1 functions to depth 2 less,
 arity 2 functions to depth 3 less, and arity 3 functions to depth 4 less, but if you run pr04.rkt yourself
 it will essentially run forever trying to get ever deeper (ok, it'll terminate if it ever gets to 50).
