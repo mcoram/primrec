@@ -55,12 +55,14 @@
 (define (vector-initial-match v1 v2)
   (define l (min (vector-length v1) (vector-length v2)))
   (for/and ([ix (in-range l)]) (equal? (vector-ref v1 ix) (vector-ref v2 ix))))
-(define (find-matches v1 vl1)
+(define (find-matches-v v1 vl1)
   (define lst (apply append (vector->list vl1))) ; this is probably inefficient (esp. to do it repeatedly) but let's try.
   (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
-(define (find-a0-matches v1) (find-matches v1 (vector-ref v-functions 0)))
-(define (find-a1-matches v1) (find-matches v1 (vector-ref v-functions 1)))
-(define (find-a2-matches v1) (find-matches v1 (vector-ref v-functions 2)))
+(define (find-matches v1 lst)
+  (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
+(define (find-a0-matches v1) (find-matches v1 a0l))
+(define (find-a1-matches v1) (find-matches v1 a1l))
+(define (find-a2-matches v1) (find-matches v1 a2l))
 (define (find-s1-matches v1)
   (define lst l-slow) ; @@ should be l-slow1
   (filter (lambda (x) (vector-initial-match v1 (first x))) lst))
