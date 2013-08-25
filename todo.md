@@ -1,3 +1,8 @@
+
+* Use places to parallelize the for loops in pr04
+
+Finished
+========
 * speedup to heuristically reduce burden of slow functions producing stuff like:
 
         (evaluation-timeout)
@@ -18,11 +23,6 @@
 
 ** e.g. could do partial evaluation of (Cij Pik a1 a2 a3) -> ak of arity j
 ** probably more important, could only call "on-new" in the event of timeout IF the evaluation shows a distinct output among the non-(-1) content
-
-* Use places to parallelize the for loops in pr04
-
-Finished
-========
 * speedup by introducing compiled forms for specific R0 and R1 forms.
 * Confirm/figure a fix for the associativity rule foulup
 * Capture potential slow evaluation of arity 0 constructions
