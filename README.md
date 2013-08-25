@@ -3,7 +3,7 @@ primrec
 
 Explore the space of primitive recursive functions. I explain more about why this is worth doing [here](https://github.com/mcoram/primrec/blob/master/raison%20d'e%CC%82tre.md). The work is in the spirit of [inductive programming](http://www.inductive-programming.org/) and was inspired by [MagicHaskeller](http://nautilus.cs.miyazaki-u.ac.jp/~skata/MagicHaskeller.html) and [Incremental Learning in Inductive Programming](http://www.cogsys.wiai.uni-bamberg.de/aaip09/aaip09_submissions/incremental.pdf) and [John Tromp's Lambda Calculus and Combinatory Logic Playground](http://homepages.cwi.nl/~tromp/cl/cl.html).
 
-To get a flavor for what's going on, try running web.rkt and after the loading is done pointing a browser to (http://localhost:8000)[http://localhost:8000]. You'll discover that if you type in "2 3 4 5" then the results tell you that the simplest
+To get a flavor for what's going on, try running web.rkt and after the loading is done pointing a browser to [http://localhost:8000](http://localhost:8000). You'll discover that if you type in "2 3 4 5" then the results tell you that the simplest
 primitive recursive function that fits this sequence is the
 composition of S with S, which we write as (C11 S S). Here, S stands
 for the succesor function S: x -> x+1, and composition is written
