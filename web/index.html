@@ -14,18 +14,28 @@
   Enter a sequence of non-negative integers, like "0 1 2" or "0 1 0 1" and I'll try to find a function that matches your pattern.<p>
   Specifically, I'll search for a simple primitive recursive function that matches your sequence when it's evaluated at 0 1 2 3 4 ... 24.<p>
 
-<form>
-  Query: <input id="target" type="text" value="">
+<form id="form">
+  Query: <input id="target" name="q" type="text" value="" autocomplete="off" autofocus>
 </form>
+<br>
+Next symbol in your sequence is: <div id="tab"></div>
+<br>
 <div id="result"></div>
 <script>
-$('#target').keyup(function(event) {
+var PR={ct: 0, current: -1};
+PR.on_event=function(event) {
   var q = $('#target').val();
+  PR.ct=PR.ct+1;
   $.ajax({
+    dataType: "json",
     url: "pr_find",
-    data: { q: q}
+    data: { q: q, ct: PR.ct}
     }).done(function( result ) {
-       $("#result").html(result)
-     });
-  });
+       if (result[0]>PR.current) {
+         PR.current=result[0];
+         $("#result").html(result[1]);
+         $("#tab").html(result[2]);
+         }})};
+$('#target').keyup(PR.on_event);
+$('#form').submit(function(e) {e.preventDefault();return false;});
 </script>
