@@ -23,7 +23,7 @@
                        [endix (+ tmpsum num)])
                   (set! tmpsum endix)
                   (let ([wt (apply + (map get-wt (range begix endix)))])
-                    wt)))))
+                    (if (> num 0) (/ wt num) 0))))))
 (define (accumwt l)
   (if (null? l)
       null
@@ -52,10 +52,19 @@
               [vnextacc (accumwt vnext)]
               [totalwt (apply + (map second vnextacc))]
               [vnextp (for/list ([xx vnextacc]) (list (first xx) (/ (second xx) totalwt)))]
-              [vnextps (for/list ([xx vnextp]) (format "~a w.p. ~a" (first xx) (srfi:format "~1,3F" (second xx))))]
-              ;[vnextps (for/list ([xx vnextp]) (format "~a w.p. ~a" (first xx) (second xx)))]
+              [vnextps (for/list ([xx vnextp]) 
+                         (let ([p (second xx)]
+                               [str (format "~a w.p. ~a" (first xx) (srfi:format "~1,3F" (second xx)))])
+                           (if (> p .1) (format "<b>~a</b>" str)
+                               (if (< p .001) (format "<small>~a</small>" str)
+                                   str))))]
               [matchv (take-at-most ml 30)]
-              [sv (map (lambda (x) (format "~a" x)) matchv)])
+              [sv (map (lambda (x) (format "~a<br><span class=\"tab\"></span><font color=\"#00BB00\">~a</font><span class=\"tab\"></span><font color=\"#0000FF\">~a</font><span class=\"tab\"></span><font color=\"#999999\">~a ~a</font>" 
+                                           (string-join (map (lambda (y) (format "~a" y)) (vector->list (first x))) " ")
+                                           (second x)
+                                           (third x)
+                                           (fourth x)
+                                           (fifth x))) matchv)])
          (printf "~a\n" q)
          (if ct 
              (jsexpr->string (list ct (string-join sv "<br>\n") (string-join vnextps ", ")))
