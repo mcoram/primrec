@@ -10,10 +10,10 @@
 (require racket/serialize)
 (require file/gzip)
 
-(provide main)
+(provide main v-evaluators make-v-evaluators v-accum v-ht v-lv l-slow update-count)
 
 ; Limits
-(define timeout-per-eval 5) ; only allow this many seconds for an evaluation
+(define timeout-per-eval 0.1) ; only allow this many seconds for an evaluation
 (define evaluation-limits '(-1 25 5 3)) ; The value N_j in this list means to evaluate functions of arity j on the integers in the set {0..(N_j-1)}^j to test for distinct functions.
 ;Note that large values mean that more functions will fail to complete before the timeout. Small values mean that distinct functions won't be noticed as distinct when they are the same on these values.
 
@@ -63,7 +63,7 @@
     (define f #f)
     (define mythunk (lambda ()
                       (let ([run1 (lambda ()
-                                    (when (not (equal? (car flst) #f))
+                                    (when (not (member #f flst))
                                       (set! f (apply (car flst) (cdr flst))) ; first "construct" f (could be slow esp. if f is arity 0)
                                       evaluation-body))]) ; evaluation-body called for side-effect on result
                         (let-values ([(dummyres t1 t2 t3) (time-apply run1 null)])
@@ -81,7 +81,7 @@
       (values result result-time completed f))))
 
 ; Use the preceding to actually generate the evaluators for arity 0..3. Do the work by mutating result, which gets set up by the macro.
-(define v-evaluators
+(define (make-v-evaluators timeout-per-eval)
   (vector 
    (make-evaluator result s f l depth 1
                    (vector-set! result 0 f)
@@ -105,6 +105,8 @@
                        (vector-set! result counter (f i j k))
                        (set! counter (+ 1 counter))))
                    timeout-per-eval)))
+
+(define v-evaluators (make-v-evaluators timeout-per-eval))
 
 ; a updated skeleton to construct hashtable updaters with "programmable behavior"
 (define (make-updater ht ok? to-key-value-force-completed on-new) 

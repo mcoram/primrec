@@ -8,7 +8,8 @@
 (printf "loading... \n")
 (define ldat 
   (let* 
-      ([inname "out/functions-full.21"]
+      ([inname "out/functions-full.21"] ; production setting
+       ;[inname "out4/functions-full.25"] ; research setting
        [ifile1 (open-input-file (string-append inname ".serial.gz"))]
        [ifile (open-output-bytes)])
     (gunzip-through-ports ifile1 ifile)
@@ -34,6 +35,8 @@
   (apply append (vector->list (vector-ref v-functions 2))))
 (define a3l
   (apply append (vector->list (vector-ref v-functions 3))))
+
+;(set! a0l (filter (lambda (x) (not (equal? (first x) '#(#f)))) a0l)) ; was only needed for a bug
 
 (define (complexity-cut a0l cut) (filter (lambda (x) (<= (second x) cut)) a0l))
 (define (naturals-cut cut) (sort (map (lambda (x) (vector-ref (first x) 0)) (complexity-cut a0l cut)) <))
