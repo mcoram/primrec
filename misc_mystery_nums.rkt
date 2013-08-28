@@ -20,3 +20,11 @@
 (define x3 (C10 (C21 (R1 (C23 (R1 (C23 h P32 P32) P11) P32 P32) S) S S) (C10 S 0)))
 (define x4 (C10 (C21 (R1 (C23 (R1 (C23 h0 P32 P32) S) P32 P32) S) S S) (C10 S 0)))
 (define x5 (C10 (C21 (R1 (C23 (R1 (C23 h0 P32 P32) P11) P32 P32) S) S S) (C10 S 0)))
+
+;(#(666) 26 (C10 (R0 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) (C23 (R1 P33 S) P31 P32)) S) 0) (C10 S (C10 S (C10 S 0)))) 224229036 0)
+
+; These new mysteries at complexity 23 take >10min each to crack after the compiled forms are substituted so they need a new trick.
+;(#(-1) 23 (C10 (C21 (R1 (C23 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) P32) S) P32 P32) S) S S) (C10 S 0)) 20543027 -1)
+;(#(-1) 23 (C10 (C21 (R1 (C23 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) P32) S) P32 P32) S) S P11) (C10 S 0)) 20543028 -1)
+;(#(-1) 23 (C10 (C21 (R1 (C23 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) P32) S) P32 P33) S) S S) (C10 S 0)) 20543033 -1)
+;(#(-1) 23 (C10 (C21 (R1 (C23 (R1 (C13 (R0 (R1 (C13 S P32) S) 0) P32) P11) P32 P32) P11) S S) (C10 S 0)) 20543052 -1)

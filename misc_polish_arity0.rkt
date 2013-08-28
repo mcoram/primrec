@@ -76,4 +76,8 @@
 (define (dump-level-sets3 depth) (for ([i (in-range (+ 1 depth))]) (printf "~a\t~a\n" i (string-join (map big-format (naturals-cut2 i)) " "))))
 (dump-level-sets3 maxdepth)
 
-
+(require racket/serialize)
+(define outname (format "a0.polish.~a.serial" maxdepth))
+(define ofile (open-output-file outname #:exists 'replace))
+(write (serialize result) ofile)
+(close-output-port ofile)
