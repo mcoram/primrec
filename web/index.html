@@ -8,6 +8,8 @@
     -->
   </STYLE>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </HEAD>
 <BODY>
     <H1>Primitive Recursive Function Lookup</H1>
@@ -36,6 +38,7 @@ PR.on_event=function(event) {
          PR.current=result[0];
          $("#result").html(result[1]);
          $("#tab").html(result[2]);
+         MathJax.Hub.Queue(["Typeset",MathJax.Hub,"result"]);
          }})};
 $('#target').keyup(PR.on_event);
 $('#form').submit(function(e) {e.preventDefault();return false;});

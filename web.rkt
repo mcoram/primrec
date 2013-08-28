@@ -23,7 +23,7 @@
                        [endix (+ tmpsum num)])
                   (set! tmpsum endix)
                   (let ([wt (apply + (map get-wt (range begix endix)))])
-                    (if (> num 0) (/ wt num) 0))))))
+                    (exact->inexact (if (> num 0) (/ wt num) 0)))))))
 (define (accumwt l)
   (if (null? l)
       null
@@ -39,6 +39,32 @@
         
 
 (get "/" (lambda (req) (include-template "web/index.html")))
+
+(define (pr->latex s)
+  (match s
+    [0 "0"]
+    ['Z "Z"]
+    ['S "S"]
+    ['P11 "P^1_1"]
+    ['P21 "P^2_1"]
+    ['P22 "P^2_2"]
+    ['P31 "P^3_1"]
+    ['P32 "P^3_2"]
+    ['P33 "P^3_3"]
+    [`{R0 ,f ,g} (format "\\operatorname{PR}_0(~a,~a)" (pr->latex f) (pr->latex g)) ]
+    [`{R1 ,f ,g} (format "\\operatorname{PR}_1(~a,~a)" (pr->latex f) (pr->latex g)) ]
+    [`{C10 ,f ,g} (format "~a(~a)" (pr->latex f) (pr->latex g))]
+    [`{C20 ,f ,g ,h} (format "~a(~a,~a)" (pr->latex f) (pr->latex g) (pr->latex h))]
+    [`{C30 ,f ,g ,h ,i} (format "~a(~a,~a,~a)" (pr->latex f) (pr->latex g) (pr->latex h) (pr->latex i))]
+    [`{C11 ,f ,g} (format "~a \\circ^1_1 ~a" (pr->latex f) (pr->latex g))]
+    [`{C12 ,f ,g} (format "~a \\circ^1_2 ~a" (pr->latex f) (pr->latex g))]
+    [`{C13 ,f ,g} (format "~a \\circ^1_3 ~a" (pr->latex f) (pr->latex g))]
+    [`{C21 ,f ,g ,h} (format "~a \\circ^2_1 (~a,~a)" (pr->latex f) (pr->latex g) (pr->latex h))]
+    [`{C22 ,f ,g ,h} (format "~a \\circ^2_2 (~a,~a)" (pr->latex f) (pr->latex g) (pr->latex h))]
+    [`{C23 ,f ,g ,h} (format "~a \\circ^2_3 (~a,~a)" (pr->latex f) (pr->latex g) (pr->latex h))]
+    [`{C31 ,f ,g ,h ,i} (format "~a \\circ^3_1 (~a,~a,~a)" (pr->latex f) (pr->latex g) (pr->latex h) (pr->latex i))]
+    [`{C32 ,f ,g ,h ,i} (format "~a \\circ^3_2 (~a,~a,~a)" (pr->latex f) (pr->latex g) (pr->latex h) (pr->latex i))]
+    [`{C33 ,f ,g ,h ,i} (format "~a \\circ^3_3 (~a,~a,~a)" (pr->latex f) (pr->latex g) (pr->latex h) (pr->latex i))]))    
 
 ;http://localhost:8000/pr_find?q=2%203
 ;http://localhost:8000/pr_find?q=2%203&ct=3
@@ -59,15 +85,16 @@
                                (if (< p .001) (format "<small>~a</small>" str)
                                    str))))]
               [matchv (take-at-most ml 30)]
-              [sv (map (lambda (x) (format "~a<br><span class=\"tab\"></span><font color=\"#00BB00\">~a</font><span class=\"tab\"></span><font color=\"#0000FF\">~a</font><span class=\"tab\"></span><font color=\"#999999\">~a ~a</font>" 
+              [sv (map (lambda (x) (format "~a<br><span class=\"tab\"></span><font color=\"#00BB00\">~a</font><span class=\"tab\"></span><font color=\"#0000FF\">~a</font><span class=\"tab\"></span><font color=\"#999999\">~a ~a</font> \\(~a\\)" 
                                            (string-join (map (lambda (y) (format "~a" y)) (vector->list (first x))) " ")
                                            (second x)
                                            (third x)
                                            (fourth x)
-                                           (fifth x))) matchv)])
+                                           (fifth x)
+                                           (pr->latex (third x)))) matchv)])
          (printf "~a\n" q)
          (if ct 
              (jsexpr->string (list ct (string-join sv "<br>\n") (string-join vnextps ", ")))
              (string-join sv "<br>\n"))
          )))
-(run)
+(run #:port 8000)
