@@ -13,7 +13,7 @@
 (provide main v-evaluators make-v-evaluators v-accum v-ht v-lv l-slow update-count)
 
 ; Limits
-(define timeout-per-eval 0.1) ; only allow this many seconds for an evaluation
+(define timeout-per-eval 0.25) ; only allow this many seconds for an evaluation
 (define evaluation-limits '(-1 25 5 3)) ; The value N_j in this list means to evaluate functions of arity j on the integers in the set {0..(N_j-1)}^j to test for distinct functions.
 ;Note that large values mean that more functions will fail to complete before the timeout. Small values mean that distinct functions won't be noticed as distinct when they are the same on these values.
 
@@ -27,11 +27,12 @@
 ;Customize this to output as you go
 (define (on-begin-extender arity depth-p1)
   (let ([depth (- (vector-length (lazy-vector->vector (vector-ref v-lv 0))) 1)])
-    (when (and (or (equal? arity 0) (equal? arity 1)) (>= depth 0))
+    (when (and (equal? arity 0) (>= depth 0))
       (printf "Dumping\n")
-      (define outname (format "out/functions-full.~a.serial" depth))
+      (define outname (format "out6/functions-full.~a" depth))
       (define ofile (open-output-file outname #:exists 'replace))
-      (write (serialize (list arity depth (dump-functions) (dump-slow))) ofile)
+;      (write (serialize (list arity depth (dump-functions) (dump-slow))) ofile)
+      (write (list arity depth (dump-functions) (dump-slow)) ofile)
       (close-output-port ofile)
       (gzip outname (string-append outname ".gz"))
       (delete-file outname)

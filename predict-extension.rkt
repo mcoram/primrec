@@ -8,13 +8,15 @@
 (printf "loading... \n")
 (define ldat 
   (let* 
-      ([inname "out/functions-full.21"] ; production setting
+      (;[inname "out/functions-full.21"] ; production setting
+       ;[inname "out4/functions-full.15"] ; debug setting
        ;[inname "out4/functions-full.25"] ; research setting
-       [ifile1 (open-input-file (string-append inname ".serial.gz"))]
+       [inname "out6/functions-full.22"] ; medium setting
+       [ifile1 (open-input-file (string-append inname ".gz"))]
        [ifile (open-output-bytes)])
     (gunzip-through-ports ifile1 ifile)
     (close-input-port ifile1)
-    (deserialize (read (open-input-bytes (get-output-bytes ifile))))))
+    (read (open-input-bytes (get-output-bytes ifile)))))
 (define maxdepth (second ldat))
 (define v-functions (third ldat))
 (define v-depths (vector-map (lambda (x) (- (vector-length x) 1)) v-functions))
